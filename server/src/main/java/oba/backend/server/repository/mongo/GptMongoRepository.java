@@ -1,6 +1,6 @@
 package oba.backend.server.repository.mongo;
 
-import oba.backend.server.domain.mongo.GptDocument;
+import oba.backend.server.entity.mongo.GptDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
