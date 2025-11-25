@@ -18,11 +18,11 @@ services:
   ai_backend:
     container_name: ai_backend
     build:
-      context: ../oba_ai_service
+      context: ../oba_AI
     ports:
       - "8000:8000"
     env_file:
-      - ../oba_ai_service/.env
+      - ../oba_AI/.env
     networks:
       - ai_network
     command: [
