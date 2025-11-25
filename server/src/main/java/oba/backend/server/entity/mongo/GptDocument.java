@@ -1,4 +1,4 @@
-package oba.backend.server.domain.mongo;
+package oba.backend.server.entity.mongo;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
