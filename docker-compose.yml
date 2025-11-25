@@ -9,15 +9,13 @@ services:
       - ./server/.env
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATA_MONGODB_URI: mongodb://ai_mongo:27017/OneBitArticle
-      FASTAPI_URL: "http://ai_backend:8000/generate_daily_gpt_results"
     depends_on:
-      - backend
-      - ai_mongo     # MongoDB 의존성 추가
+      - ai_backend
+      - ai_mongo
     networks:
       - ai_network
 
-  backend:
+  ai_backend:
     container_name: ai_backend
     build:
       context: ../oba_ai_service
@@ -31,8 +29,7 @@ services:
       "uvicorn",
       "app:app",
       "--host", "0.0.0.0",
-      "--port", "8000",
-      "--reload"
+      "--port", "8000"
     ]
 
   ai_mongo:
