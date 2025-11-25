@@ -14,11 +14,15 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class GoogleVerifier {
 
-    @Value("${google.client-id}")
+    @Value("${GOOGLE_CLIENT_ID}")
     private String googleClientId;
 
     public GoogleIdToken.Payload verify(String idTokenString) {
         try {
+            if (googleClientId == null || googleClientId.isBlank()) {
+                throw new IllegalStateException("GOOGLE_CLIENT_ID is missing. Check your .env file.");
+            }
+
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     new NetHttpTransport(),
                     new GsonFactory()
