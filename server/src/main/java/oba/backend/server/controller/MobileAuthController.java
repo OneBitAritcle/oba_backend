@@ -39,18 +39,14 @@ public class MobileAuthController {
     @PostMapping("/google")
     public ResponseEntity<TokenResponse> googleLogin(@RequestBody Map<String, String> body) {
 
-        String idToken = body.get("idToken");
-        var payload = googleVerifier.verify(idToken);
+        var payload = googleVerifier.verify(body.get("idToken"));
+        String identifier = "google:" + payload.getSubject();
 
-        return ResponseEntity.ok(
-                processLogin(
-                        "google",
-                        payload.getSubject(),
-                        payload.getEmail(),
-                        (String) payload.get("name"),
-                        (String) payload.get("picture")
-                )
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                identifier, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
+
+        return ResponseEntity.ok(jwtProvider.generateToken(auth));
     }
 
     /**
