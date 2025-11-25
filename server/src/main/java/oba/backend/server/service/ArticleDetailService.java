@@ -1,7 +1,7 @@
 package oba.backend.server.service;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.domain.mongo.GptDocument;
+import oba.backend.server.entity.mongo.GptDocument;
 import oba.backend.server.entity.mysql.Article;
 import oba.backend.server.entity.mysql.ArticleCategory;
 import oba.backend.server.repository.mongo.GptMongoRepository;
