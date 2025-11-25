@@ -24,34 +24,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        // Access Token 먼저 꺼내오기 (쿠키에서)
-        String token = resolveTokenFromCookies(request);
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            var claims = jwtProvider.getClaims(token);
+        String accessToken = resolveAccessToken(request);
+        String refreshToken = getCookie(request, "refresh_token");
 
-            // Refresh Token이면 인증 불가 → 그냥 다음 필터로
-            if ("refresh".equals(claims.get("type"))) {
+        // Access 정상 → 인증 설정
+        if (accessToken != null && jwtProvider.validateToken(accessToken)) {
+            authenticate(accessToken);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Access 만료 + Refresh 정상 → Access 재발급
+        if (refreshToken != null && jwtProvider.validateToken(refreshToken)) {
+
+            var claims = jwtProvider.getClaims(refreshToken);
+            if (!"refresh".equals(claims.get("type"))) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // 3. Access Token이면 SecurityContext에 인증정보 저장
-            Authentication authentication = jwtProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String username = claims.getSubject();
+            String newAccessToken = jwtProvider.createAccessToken(username);
+
+            Cookie cookie = new Cookie("access_token", newAccessToken);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 30);
+            response.addCookie(cookie);
+
+            authenticate(newAccessToken);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * AccessToken을 HttpOnly 쿠키에서 가져오기
-     */
-    private String resolveTokenFromCookies(HttpServletRequest request) {
+    private String resolveAccessToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+
+        return getCookie(request, "access_token");
+    }
+
+    private void authenticate(String token) {
+        Authentication auth = jwtProvider.getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private String getCookie(HttpServletRequest request, String name) {
         if (request.getCookies() == null) return null;
 
         return Arrays.stream(request.getCookies())
-                .filter(cookie -> "access_token".equals(cookie.getName()))
+                .filter(c -> name.equals(c.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
