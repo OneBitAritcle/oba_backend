@@ -58,6 +58,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    implementation 'mysql:mysql-connector-j:8.2.0'
 }
 
 
