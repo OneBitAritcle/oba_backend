@@ -1,7 +1,6 @@
 package oba.backend.server.service;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.domain.mongo.GptDocument;
 import oba.backend.server.repository.mongo.GptMongoRepository;
 import oba.backend.server.repository.mysql.ArticleRepository;
 import oba.backend.server.dto.ArticleSummaryResponse;
@@ -25,7 +24,7 @@ public class ArticleSummaryService {
 
         return latest.stream().map(a -> {
 
-            GptDocument doc = gptMongoRepository.findByArticleId(a.getArticleId())
+            oba.backend.server.entity.mongo.GptDocument doc = gptMongoRepository.findByArticleId(a.getArticleId())
                     .orElse(null);
 
             List<String> bullets = new ArrayList<>();
