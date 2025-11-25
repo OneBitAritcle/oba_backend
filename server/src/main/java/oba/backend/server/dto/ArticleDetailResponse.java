@@ -2,7 +2,7 @@ package oba.backend.server.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import oba.backend.server.domain.mongo.GptDocument;
+import oba.backend.server.entity.mongo.GptDocument;
 import oba.backend.server.entity.mysql.Article;
 
 import java.util.List;
