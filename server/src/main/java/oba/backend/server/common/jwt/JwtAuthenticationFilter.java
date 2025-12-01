@@ -13,6 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -20,25 +21,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
+    // 🔥 JWT를 적용하지 않을 경로들
+    private static final List<String> EXCLUDE_URLS = List.of(
+            "/articles",
+            "/auth",
+            "/oauth2",
+            "/public",
+            "/gpt",
+            "/ai"
+    );
+
+    private boolean isExcluded(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return EXCLUDE_URLS.stream().anyMatch(uri::startsWith);
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
+        // 1️⃣ 허용 경로는 JWT 검증 건너뛰기 (중요!)
+        if (isExcluded(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 2️⃣ Access Token 확인
         String accessToken = resolveAccessToken(request);
         String refreshToken = getCookie(request, "refresh_token");
 
-        // Access 정상 → 인증 설정
         if (accessToken != null && jwtProvider.validateToken(accessToken)) {
             authenticate(accessToken);
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Access 만료 + Refresh 정상 → Access 재발급
+        // 3️⃣ Access 만료 + Refresh 정상 → 재발급
         if (refreshToken != null && jwtProvider.validateToken(refreshToken)) {
 
             var claims = jwtProvider.getClaims(refreshToken);
+
             if (!"refresh".equals(claims.get("type"))) {
                 filterChain.doFilter(request, response);
                 return;
@@ -54,8 +78,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.addCookie(cookie);
 
             authenticate(newAccessToken);
+
+            filterChain.doFilter(request, response);
+            return;
         }
 
+        // 4️⃣ 둘 다 없으면 인증 없이 통과
         filterChain.doFilter(request, response);
     }
 
