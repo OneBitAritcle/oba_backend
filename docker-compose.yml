@@ -1,14 +1,17 @@
+version: "3.9"
+
 services:
   spring:
     container_name: spring_app
     build:
       context: ./server
     ports:
-      - "8080:8080"
+      - "9000:9000"
     env_file:
       - ./server/.env
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 9000     # 서버 포트 강제
     depends_on:
       - ai_backend
       - ai_mongo
@@ -23,14 +26,13 @@ services:
       - "8000:8000"
     env_file:
       - ../oba_AI/.env
-    networks:
-      - ai_network
     command: [
-      "uvicorn",
-      "app:app",
+      "uvicorn", "app:app",
       "--host", "0.0.0.0",
       "--port", "8000"
     ]
+    networks:
+      - ai_network
 
   ai_mongo:
     image: mongo:7.0
