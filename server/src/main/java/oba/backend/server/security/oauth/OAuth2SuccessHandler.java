@@ -1,6 +1,5 @@
 package oba.backend.server.security.oauth;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +21,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication)
-            throws IOException, ServletException {
+            throws IOException {
 
         CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
-        String identifier = "google:" + user.getUserId(); // 실제 provider + id 로 구성
+        String identifier = "oauth:" + user.getUserId();
 
         String access = jwtProvider.createAccessToken(identifier);
         String refresh = jwtProvider.createRefreshToken(identifier);
 
-        response.sendRedirect("/login/success?access=" + access + "&refresh=" + refresh);
+        // 🔥 Expo Redirect URI
+        String redirect = "exp://localhost:8081/oauth"
+                + "?access=" + access
+                + "&refresh=" + refresh;
+
+        getRedirectStrategy().sendRedirect(request, response, redirect);
     }
 }
