@@ -1,3 +1,15 @@
+server:
+  port: ${SERVER_PORT:9000}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-ms: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:1800000}
+  refresh-token-expiration-ms: ${JWT_REFRESH_TOKEN_EXPIRATION_MS:1209600000}
+
+ai:
+  server:
+    url: ${AI_SERVER_URL}
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -10,34 +22,6 @@ spring:
       uri: ${MONGODB_URI}
       database: OneBitArticle
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-security:
-  oauth2:
-    client:
-      registration:
-        google:
-          client-id: ${GOOGLE_CLIENT_ID}
-          client-secret: ${GOOGLE_CLIENT_SECRET}
-        kakao:
-          client-id: ${KAKAO_CLIENT_ID}
-          client-secret: ${KAKAO_CLIENT_SECRET}
-        naver:
-          client-id: ${NAVER_CLIENT_ID}
-          client-secret: ${NAVER_CLIENT_SECRET}
-
-jwt:
-  secret: ${JWT_SECRET}
-
-ai:
-  server:
-    url: ${AI_SERVER_URL}
-
-server:
-  port: 8080
+logging:
+  level:
+    root: INFO
