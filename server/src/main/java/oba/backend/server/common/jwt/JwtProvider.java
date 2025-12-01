@@ -27,27 +27,21 @@ public class JwtProvider {
             @Value("${jwt.access-token-expiration-ms}") long accessTokenValidity,
             @Value("${jwt.refresh-token-expiration-ms}") long refreshTokenValidity
     ) {
-        // BASE64 decode (반드시 Base64 로 인코딩 후 .env 에 저장해야 함)
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.accessTokenValidity = accessTokenValidity;
         this.refreshTokenValidity = refreshTokenValidity;
     }
 
-    public TokenResponse generateToken(Authentication authentication) {
-        String accessToken = createToken(authentication.getName(), "access", accessTokenValidity);
-        String refreshToken = createToken(authentication.getName(), "refresh", refreshTokenValidity);
-        return new TokenResponse(accessToken, refreshToken);
-    }
-
+    // ---- CREATE TOKEN ----
     public String createAccessToken(String username) {
-        return createToken(username, "access", accessTokenValidity);
+        return createToken(username, accessTokenValidity);
     }
 
     public String createRefreshToken(String username) {
-        return createToken(username, "refresh", refreshTokenValidity);
+        return createToken(username, refreshTokenValidity);
     }
 
-    private String createToken(String username, String type, long validity) {
+    private String createToken(String username, long validity) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + validity);
 
@@ -55,11 +49,11 @@ public class JwtProvider {
                 .setSubject(username)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .claim("type", type)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // ---- VALIDATE ----
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -69,8 +63,13 @@ public class JwtProvider {
         }
     }
 
+    // ---- PARSE ----
     public Claims getClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public String getUserId(String token) {
+        return getClaims(token).getSubject();
     }
 
     public Authentication getAuthentication(String token) {
@@ -81,5 +80,15 @@ public class JwtProvider {
 
         User principal = new User(username, "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+
+    // ---- NEW: MobileAuthController 에서 필요 ----
+    public TokenResponse generateToken(Authentication authentication) {
+        String userId = authentication.getName(); // subject = userId
+
+        String accessToken = createAccessToken(userId);
+        String refreshToken = createRefreshToken(userId);
+
+        return new TokenResponse(accessToken, refreshToken);
     }
 }
