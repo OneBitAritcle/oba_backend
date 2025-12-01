@@ -8,7 +8,9 @@ import java.util.List;
 @Data
 @Builder
 public class ArticleSummaryResponse {
-    private Long id;
+
+    private Long articleId;
     private String title;
-    private List<String> bullets;
+    private List<String> summaryBullets;
+    private String servingDate;
 }
