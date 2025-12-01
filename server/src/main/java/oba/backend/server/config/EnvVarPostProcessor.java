@@ -1,40 +1,43 @@
 package oba.backend.server.config.env;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.Ordered;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.io.File;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EnvVarPostProcessor implements EnvironmentPostProcessor, Ordered {
 
     @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment, org.springframework.boot.SpringApplication application) {
+    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+
         try {
-            var resource = new ClassPathResource(".env");
-            if (!resource.exists()) return;
+            File envFile = new File(".env");   // ★ 실행 위치(server/)의 .env 를 로드
+
+            if (!envFile.exists()) {
+                System.out.println("[EnvPostProcessor] .env not found in working directory");
+                return;
+            }
 
             Map<String, Object> map = new HashMap<>();
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(resource.getInputStream()))) {
-
+            try (BufferedReader reader = new BufferedReader(new FileReader(envFile))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // 공백 제거 + BOM 제거
-                    line = line.replace("\uFEFF", "").trim();
-
+                    line = line.trim();
                     if (line.isEmpty() || line.startsWith("#")) continue;
+
                     if (!line.contains("=")) continue;
 
                     String[] parts = line.split("=", 2);
-
-                    String key = parts[0].replace("\r", "").trim();
-                    String value = parts[1].replace("\r", "").trim();
+                    String key = parts[0].trim();
+                    String value = parts.length > 1 ? parts[1].trim() : "";
 
                     map.put(key, value);
                 }
@@ -43,8 +46,10 @@ public class EnvVarPostProcessor implements EnvironmentPostProcessor, Ordered {
             environment.getPropertySources()
                     .addFirst(new MapPropertySource("customEnvVars", map));
 
+            System.out.println("[EnvPostProcessor] .env loaded successfully from server/");
+
         } catch (Exception e) {
-            System.out.println("EnvVarPostProcessor error: " + e.getMessage());
+            System.out.println("[EnvPostProcessor] Error loading .env: " + e.getMessage());
         }
     }
 
