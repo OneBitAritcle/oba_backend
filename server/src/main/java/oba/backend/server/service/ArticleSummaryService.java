@@ -1,13 +1,13 @@
 package oba.backend.server.service;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.repository.mongo.GptMongoRepository;
-import oba.backend.server.repository.mysql.ArticleRepository;
 import oba.backend.server.dto.ArticleSummaryResponse;
+import oba.backend.server.entity.mongo.GptDocument;
+import oba.backend.server.repository.mongo.GptMongoRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,33 +15,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArticleSummaryService {
 
-    private final ArticleRepository articleRepository;
     private final GptMongoRepository gptMongoRepository;
 
     public List<ArticleSummaryResponse> getLatestArticles(int limit) {
 
-        var latest = articleRepository.findLatestArticles(PageRequest.of(0, limit));
+        Pageable pageable = PageRequest.of(0, limit);
+        List<GptDocument> docs = gptMongoRepository.findByOrderByServingDateDesc(pageable);
 
-        return latest.stream().map(a -> {
+        return docs.stream().map(doc -> {
+            List<String> bullets = null;
 
-            oba.backend.server.entity.mongo.GptDocument doc = gptMongoRepository.findByArticleId(a.getArticleId())
-                    .orElse(null);
-
-            List<String> bullets = new ArrayList<>();
-
-            if (doc != null && doc.getGptResult() != null) {
-                String s = doc.getGptResult().getSummary();
-                if (s != null) {
-                    bullets = Arrays.stream(s.split(" "))
-                            .limit(5)
-                            .toList();
-                }
+            if (doc.getSummary() != null) {
+                bullets = Arrays.stream(doc.getSummary().split(" "))
+                        .limit(3)
+                        .toList();
             }
 
             return ArticleSummaryResponse.builder()
-                    .id(a.getArticleId())
-                    .title(doc != null ? doc.getTitle() : "(제목 없음)")
-                    .bullets(bullets)
+                    .articleId(doc.getArticleId())
+                    .title(doc.getTitle())
+                    .summaryBullets(bullets)
+                    .servingDate(doc.getServingDate())
                     .build();
         }).toList();
     }
