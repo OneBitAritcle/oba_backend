@@ -7,15 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
-@Document(collection = "Documents")
+@Document(collection = "Selected_Articles")
 @Data
 public class GptDocument {
 
     @Id
     private String id;
 
-    // Mongo 필드: article_id
-    // Java 필드: articleId
     @Field("article_id")
     private Long articleId;
 
@@ -28,14 +26,15 @@ public class GptDocument {
     private String servingDate;
 
     @Field("content_col")
-    private Object contentCol;
+    private Object content;
 
     @Field("sub_col")
-    private Object subCol;
+    private Object subtitle;
 
     @Field("gpt_result")
     private GptResult gptResult;
 
+    // --- GPT Result ---
     @Data
     public static class GptResult {
         private String summary;
@@ -55,5 +54,17 @@ public class GptDocument {
             private String answer;
             private String explanation;
         }
+    }
+
+    public String getSummary() {
+        return gptResult != null ? gptResult.getSummary() : null;
+    }
+
+    public List<GptResult.Keyword> getKeywords() {
+        return gptResult != null ? gptResult.getKeywords() : null;
+    }
+
+    public List<GptResult.Quiz> getQuizzes() {
+        return gptResult != null ? gptResult.getQuizzes() : null;
     }
 }
