@@ -18,7 +18,8 @@ public class QuizController {
             @RequestHeader("Authorization") String token,
             @RequestBody QuizSubmitRequest request
     ) {
-        quizService.submitQuiz(token.replace("Bearer ", ""), request);
+        String jwt = token.replace("Bearer ", "");
+        quizService.submit(jwt, request);
         return ResponseEntity.ok().build();
     }
 }

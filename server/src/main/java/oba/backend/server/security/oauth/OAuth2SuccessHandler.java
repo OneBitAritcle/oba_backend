@@ -24,15 +24,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             throws IOException {
 
         CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
-        String identifier = "oauth:" + user.getUserId();
+        String identifier = "google:" + user.getUserId();
 
+        // Access Token만 생성
         String access = jwtProvider.createAccessToken(identifier);
-        String refresh = jwtProvider.createRefreshToken(identifier);
 
-        // 🔥 Expo Redirect URI
+        // Expo Dev 클라이언트 Redirect URI
         String redirect = "exp://localhost:8081/oauth"
-                + "?access=" + access
-                + "&refresh=" + refresh;
+                + "?access=" + access;
 
         getRedirectStrategy().sendRedirect(request, response, redirect);
     }

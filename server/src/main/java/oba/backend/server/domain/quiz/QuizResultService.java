@@ -1,7 +1,10 @@
 package oba.backend.server.domain.quiz;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.common.jwt.JwtProvider;
+import oba.backend.server.domain.user.User;
+import oba.backend.server.domain.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,16 +13,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuizResultService {
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
     private final IncorrectQuizRepository incorrectQuizRepository;
     private final IncorrectArticlesRepository incorrectArticlesRepository;
 
     @Transactional
     public void saveQuizResult(String jwt, QuizResultRequest request) {
 
-        Long userId = Long.parseLong(jwtProvider.getUserId(jwt));
+        Claims claims = jwtProvider.getClaims(jwt);
+        String identifier = claims.getSubject();
+
+        User user = userRepository.findByIdentifier(identifier)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Long userId = user.getId();
+
         boolean[] results = request.getQuizResults();
 
-        // 기존 기록 제거
         incorrectQuizRepository.deleteByUserIdAndArticleId(userId, request.getArticleId());
 
         IncorrectQuiz quiz = IncorrectQuiz.builder()
@@ -33,25 +42,5 @@ public class QuizResultService {
                 .build();
 
         incorrectQuizRepository.save(quiz);
-
-        // 오답 기사 저장
-        boolean hasWrong = false;
-        for (boolean r : results) {
-            if (!r) {
-                hasWrong = true;
-                break;
-            }
-        }
-
-        if (hasWrong) {
-            incorrectArticlesRepository.deleteByUserIdAndArticleId(userId, request.getArticleId());
-
-            IncorrectArticles article = IncorrectArticles.builder()
-                    .userId(userId)
-                    .articleId(request.getArticleId())
-                    .build();
-
-            incorrectArticlesRepository.save(article);
-        }
     }
 }

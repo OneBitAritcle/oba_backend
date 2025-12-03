@@ -20,14 +20,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) {
-        OAuth2User oAuth2User = super.loadUser(request);
+
+        OAuth2User oauth = super.loadUser(request);
 
         String provider = request.getClientRegistration().getRegistrationId();
-        OAuthAttributes attributes = OAuthAttributes.of(provider, oAuth2User.getAttributes());
+        OAuthAttributes attr = OAuthAttributes.of(provider, oauth.getAttributes());
 
-        User user = saveOrUpdate(attributes);
+        User user = saveOrUpdate(attr);
 
-        return new CustomOAuth2User(user, oAuth2User.getAttributes());
+        return new CustomOAuth2User(user, oauth.getAttributes());
     }
 
     private User saveOrUpdate(OAuthAttributes attr) {
@@ -35,20 +36,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String identifier = attr.getProvider() + ":" + attr.getEmail();
 
         return userRepository.findByIdentifier(identifier)
-                .map(user -> {
-                    user.updateInfo(attr.getEmail(), attr.getName(), attr.getPicture());
-                    return userRepository.save(user);
+                .map(u -> {
+                    u.updateInfo(attr.getEmail(), attr.getName(), attr.getPicture());
+                    return userRepository.save(u);
                 })
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .identifier(identifier)
-                            .email(attr.getEmail())
-                            .name(attr.getName())
-                            .picture(attr.getPicture())
-                            .provider(ProviderInfo.valueOf(attr.getProvider().toUpperCase()))
-                            .role(Role.USER)
-                            .build();
-                    return userRepository.save(newUser);
-                });
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .identifier(identifier)
+                                .email(attr.getEmail())
+                                .name(attr.getName())
+                                .picture(attr.getPicture())
+                                .provider(ProviderInfo.from(attr.getProvider()))
+                                .role(Role.USER)
+                                .build()
+                ));
     }
 }

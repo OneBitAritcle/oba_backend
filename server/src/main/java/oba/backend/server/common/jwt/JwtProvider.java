@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import jakarta.servlet.http.HttpServletRequest;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -32,63 +33,73 @@ public class JwtProvider {
         this.refreshTokenValidity = refreshTokenValidity;
     }
 
-    // ---- CREATE TOKEN ----
-    public String createAccessToken(String username) {
-        return createToken(username, accessTokenValidity);
+    public String resolveToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
     }
 
-    public String createRefreshToken(String username) {
-        return createToken(username, refreshTokenValidity);
+    /** 구버전 jjwt 문법에 맞춘 Claims 파싱 */
+    public Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(key)
+                .parseClaimsJws(token)
+                .getBody();
     }
 
-    private String createToken(String username, long validity) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + validity);
-
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    // ---- VALIDATE ----
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            getClaims(token);
             return true;
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    // ---- PARSE ----
-    public Claims getClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    public String createAccessToken(String identifier) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(identifier)
+                .setExpiration(new Date(now + accessTokenValidity))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public String getUserId(String token) {
-        return getClaims(token).getSubject();
+    public String createRefreshToken(String identifier) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(identifier)
+                .setExpiration(new Date(now + refreshTokenValidity))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public Authentication getAuthentication(String token) {
-        Claims claims = getClaims(token);
-        String username = claims.getSubject();
-
-        var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
-        User principal = new User(username, "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    public TokenResponse generateTokens(String identifier) {
+        return new TokenResponse(
+                createAccessToken(identifier),
+                createRefreshToken(identifier)
+        );
     }
 
-    // ---- NEW: MobileAuthController 에서 필요 ----
-    public TokenResponse generateToken(Authentication authentication) {
-        String userId = authentication.getName(); // subject = userId
+    public Authentication getAuthentication(String identifier) {
 
-        String accessToken = createAccessToken(userId);
-        String refreshToken = createRefreshToken(userId);
+        User principal = new User(
+                identifier,
+                "",
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
 
-        return new TokenResponse(accessToken, refreshToken);
+        return new UsernamePasswordAuthenticationToken(
+                principal,
+                "",
+                principal.getAuthorities()
+        );
+    }
+
+    /** 필요 시 Google Id Token 검증용 */
+    public String verifyGoogleIdToken(String idToken) {
+        return getClaims(idToken).getSubject();
     }
 }

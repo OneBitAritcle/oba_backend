@@ -7,8 +7,6 @@ import oba.backend.server.security.oauth.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,41 +27,41 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(c -> c.configurationSource(req -> {
+                .csrf(csrf -> csrf.disable())
+
+                // --- CORS 완전 허용 ---
+                .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowCredentials(true);
-                    config.setAllowedOrigins(List.of("*"));
-                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowedOriginPatterns(List.of("*"));
                     config.setAllowedMethods(List.of("*"));
+                    config.setAllowedHeaders(List.of("*"));
                     return config;
                 }))
 
-                .csrf(csrf -> csrf.disable())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
+                // --- 인증 필요 없는 경로 ---
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/articles/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/gpt/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ai/**").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/oauth2/**",
+                                "/login/**",
+                                "/articles/**"      // 🔥🔥 완전 Public
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 
-                .oauth2Login(oauth -> oauth
+                // --- OAuth2 ---
+                .oauth2Login(o -> o
+                        .loginPage("/oauth2/authorization/google")
                         .userInfoEndpoint(c -> c.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                 )
 
+                // --- JWT 필터 ---
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
-        return config.getAuthenticationManager();
     }
 }

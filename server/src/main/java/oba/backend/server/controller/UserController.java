@@ -19,12 +19,11 @@ public class UserController {
     public ResponseEntity<?> me(@RequestHeader("Authorization") String bearer) {
 
         String token = bearer.replace("Bearer ", "");
-        String identifier = jwtProvider.getUserId(token);
+        String identifier = jwtProvider.getClaims(token).getSubject();
 
         User user = userRepository.findByIdentifier(identifier)
                 .orElseThrow();
 
-        // DTO로 반환
         return ResponseEntity.ok(new UserProfileResponse(
                 user.getIdentifier(),
                 user.getEmail(),

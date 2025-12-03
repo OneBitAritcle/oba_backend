@@ -1,6 +1,11 @@
 package oba.backend.server.dto;
 
-public record TokenResponse(
-        String accessToken,
-        String refreshToken
-) {}
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class TokenResponse {
+    private String accessToken;
+    private String refreshToken;
+}
