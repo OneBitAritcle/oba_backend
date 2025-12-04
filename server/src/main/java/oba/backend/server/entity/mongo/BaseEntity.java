@@ -1,8 +1,7 @@
-package oba.backend.server.entity;
+package oba.backend.server.entity.mongo;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
