@@ -1,24 +1,22 @@
-package oba.backend.server.dto;
+package oba.backend.server.domain.quiz.dto;
 
 import lombok.Builder;
-import lombok.Data;
-import oba.backend.server.entity.mongo.GptDocument;
+import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
-@Data
+@Getter
 @Builder
 public class ArticleDetailResponse {
-
     private Long articleId;
     private String title;
-    private String publishTime;
-    private String servingDate;
-
-    private Object content;
-    private Object subtitle;
-
+    private LocalDateTime publishTime;
+    private LocalDateTime servingDate;
+    private String content;
+    private String subtitle;
     private String summary;
-    private List<GptDocument.GptResult.Keyword> keywords;
-    private List<GptDocument.GptResult.Quiz> quizzes;
+    private List<String> keywords;
+    private List<Map<String, Object>> quizzes;
 }

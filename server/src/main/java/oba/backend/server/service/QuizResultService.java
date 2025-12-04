@@ -3,8 +3,9 @@ package oba.backend.server.domain.quiz;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.common.jwt.JwtProvider;
+import oba.backend.server.domain.quiz.dto.QuizResultRequest;
 import oba.backend.server.domain.user.User;
-import oba.backend.server.domain.user.UserRepository;
+import oba.backend.server.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,9 +1,9 @@
-package oba.backend.server.dto;
+package oba.backend.server.domain.quiz.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class TokenResponse {
     private String accessToken;

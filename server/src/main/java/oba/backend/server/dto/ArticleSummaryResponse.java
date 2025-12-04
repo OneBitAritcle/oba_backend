@@ -1,16 +1,16 @@
-package oba.backend.server.dto;
+package oba.backend.server.domain.quiz.dto;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
 @Builder
 public class ArticleSummaryResponse {
-
     private Long articleId;
     private String title;
     private List<String> summaryBullets;
-    private String servingDate;
+    private LocalDateTime servingDate;
 }

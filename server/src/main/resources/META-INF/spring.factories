@@ -1,2 +1,0 @@
-org.springframework.boot.env.EnvironmentPostProcessor=\
-oba.backend.server.config.env.EnvVarPostProcessor

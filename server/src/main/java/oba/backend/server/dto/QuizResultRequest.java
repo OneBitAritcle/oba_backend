@@ -3,11 +3,10 @@ package oba.backend.server.domain.quiz.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
-public class QuizSubmitRequest {
+public class QuizResultRequest {
     private Long articleId;
-    private List<Integer> answers;
+    private boolean correct;
+    private int selectedOption;
 }
