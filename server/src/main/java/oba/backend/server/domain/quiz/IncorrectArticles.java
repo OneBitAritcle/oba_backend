@@ -2,14 +2,15 @@ package oba.backend.server.domain.quiz;
 
 import jakarta.persistence.*;
 import lombok.*;
-import oba.backend.server.entity.BaseEntity;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "Incorrect_Articles")
+@Table(name = "incorrect_articles")
 @IdClass(IncorrectArticlesId.class)
 public class IncorrectArticles {
 
@@ -21,6 +22,6 @@ public class IncorrectArticles {
     @Column(name = "article_id")
     private Long articleId;
 
-    @Column(name = "sol_date")
-    private java.time.LocalDateTime solDate;
+    @Column(name = "sol_date", nullable = false)
+    private LocalDateTime solDate;
 }

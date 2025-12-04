@@ -1,4 +1,4 @@
-package oba.backend.server.domain.quiz.dto;
+package oba.backend.server.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,13 +1,13 @@
 package oba.backend.server.domain.quiz;
 
 import lombok.*;
-
 import java.io.Serializable;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class IncorrectQuizId implements Serializable {
-    private Long userId;
+    private String userId;
     private Long articleId;
 }

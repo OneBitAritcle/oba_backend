@@ -34,7 +34,7 @@ spring:
             scope:
               - email
               - profile
-            # ★ ngrok 사용 시 baseUrl 반드시 필요
+            # ngrok 사용 시 baseUrl 반드시 필요
             redirect-uri: "{baseUrl}/login/oauth2/code/google"
 
         provider:

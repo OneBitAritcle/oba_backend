@@ -1,9 +1,8 @@
-package oba.backend.server.domain.quiz.dto;
+package oba.backend.server.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -12,5 +11,5 @@ public class ArticleSummaryResponse {
     private Long articleId;
     private String title;
     private List<String> summaryBullets;
-    private LocalDateTime servingDate;
+    private String servingDate; // String으로 변경
 }

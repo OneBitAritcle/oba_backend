@@ -23,8 +23,8 @@ public class ArticleSummaryService {
         List<GptDocument> docs = gptMongoRepository.findByOrderByServingDateDesc(pageable);
 
         return docs.stream().map(doc -> {
-            List<String> bullets = null;
 
+            List<String> bullets = null;
             if (doc.getSummary() != null) {
                 bullets = Arrays.stream(doc.getSummary().split(" "))
                         .limit(3)
@@ -35,8 +35,9 @@ public class ArticleSummaryService {
                     .articleId(doc.getArticleId())
                     .title(doc.getTitle())
                     .summaryBullets(bullets)
-                    .servingDate(doc.getServingDate())
+                    .servingDate(doc.getServingDate()) // String OK
                     .build();
+
         }).toList();
     }
 }

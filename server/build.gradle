@@ -25,48 +25,41 @@ repositories {
 
 dependencies {
 
+    /* -------------------- Google OAuth / ID Token -------------------- */
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'com.google.api-client:google-api-client:2.2.0'
     implementation 'com.google.http-client:google-http-client-gson:1.43.3'
 
+    /* -------------------- Spring Core -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    /* --- Core --- */
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-    /* --- Database --- */
+    /* -------------------- Database -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    /* --- OAuth2 (Google Login) --- */
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
-    /* Google API Client 통일 (버전 동일 유지) */
-    implementation 'com.google.api-client:google-api-client:2.2.0'
-    implementation 'com.google.http-client:google-http-client-gson:1.43.3'
-
-    /* --- JWT --- */
+    /* -------------------- JWT -------------------- */
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    /* --- Scheduler --- */
+    /* -------------------- Scheduler -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
-    /* --- Lombok --- */
+    /* -------------------- Dotenv (.env 로딩) -------------------- */
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    /* -------------------- Lombok -------------------- */
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    /* --- Test --- */
+    /* -------------------- Test -------------------- */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
-
-    // Google ID Token 검증
-    implementation 'com.google.api-client:google-api-client:2.2.0'
 }
 
 tasks.named('test') {

@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "Incorrect_Quiz")
+@Table(name = "incorrect_quiz")
 @IdClass(IncorrectQuizId.class)
 public class IncorrectQuiz {
 
@@ -20,9 +20,9 @@ public class IncorrectQuiz {
     @Column(name = "article_id")
     private Long articleId;
 
-    private Boolean quiz1;
-    private Boolean quiz2;
-    private Boolean quiz3;
-    private Boolean quiz4;
-    private Boolean quiz5;
+    private boolean quiz1;
+    private boolean quiz2;
+    private boolean quiz3;
+    private boolean quiz4;
+    private boolean quiz5;
 }
