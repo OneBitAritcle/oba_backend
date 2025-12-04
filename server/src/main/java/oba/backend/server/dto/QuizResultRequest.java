@@ -1,4 +1,4 @@
-package oba.backend.server.domain.quiz.dto;
+package oba.backend.server.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class QuizResultRequest {
     private Long articleId;
-    private boolean correct;
-    private int selectedOption;
+    private boolean correct;        // 맞았는지
+    private int selectedOption;     // 사용자가 고른 선택지
 }
