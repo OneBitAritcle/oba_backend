@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import oba.backend.server.common.jwt.JwtProvider;
 import oba.backend.server.dto.LoginRequest;
 import oba.backend.server.dto.TokenResponse;
+import oba.backend.server.service.MobileAuthService;
 import oba.backend.server.domain.user.User;
-import oba.backend.server.repository.user.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,23 +15,18 @@ import org.springframework.web.bind.annotation.*;
 public class MobileAuthController {
 
     private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
+    private final MobileAuthService mobileAuthService;
 
     @PostMapping("/mobile/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
 
         String identifier = "mobile:" + request.getIdToken();
 
-        // 회원 조회 or 생성
-        User user = userRepository.findByIdentifier(identifier)
-                .orElseGet(() -> userRepository.save(
-                        User.createMobileUser(identifier)
-                ));
+        User user = mobileAuthService.findOrCreateMobileUser(identifier);
 
-        // JWT 생성 — userId 포함!
         TokenResponse tokens = jwtProvider.generateTokens(
                 user.getId(),
-                identifier
+                user.getIdentifier()
         );
 
         return ResponseEntity.ok(tokens);
