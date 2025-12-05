@@ -2,8 +2,6 @@ package oba.backend.server.controller;
 
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.common.jwt.JwtProvider;
-import oba.backend.server.domain.user.User;
-import oba.backend.server.repository.user.UserRepository;
 import oba.backend.server.dto.TokenResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,29 +12,25 @@ import org.springframework.web.bind.annotation.*;
 public class TokenController {
 
     private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
 
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String refreshToken) {
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponse> reissue(@RequestHeader("Authorization") String refreshHeader) {
 
-        String token = refreshToken.replace("Bearer ", "");
-
-        // RefreshToken 검증
-        if (!jwtProvider.validateToken(token)) {
-            return ResponseEntity.status(401).body("Invalid Refresh Token");
+        if (!refreshHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build();
         }
 
-        // JWT 내부 정보 추출
+        String token = refreshHeader.substring(7);
+
+        if (!jwtProvider.validateToken(token)) {
+            return ResponseEntity.status(401).build();
+        }
+
         Long userId = jwtProvider.getUserId(token);
         String identifier = jwtProvider.getIdentifier(token);
 
-        User user = userRepository.findByIdentifier(identifier)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        TokenResponse newTokens = jwtProvider.generateTokens(userId, identifier);
 
-        // 새 토큰 발급 (userId + identifier)
-        String newAccess = jwtProvider.createAccessToken(userId, identifier);
-        String newRefresh = jwtProvider.createRefreshToken(userId, identifier);
-
-        return ResponseEntity.ok(new TokenResponse(newAccess, newRefresh));
+        return ResponseEntity.ok(newTokens);
     }
 }
