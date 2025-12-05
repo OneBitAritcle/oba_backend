@@ -1,6 +1,8 @@
 package oba.backend.server.config;
 
 import lombok.RequiredArgsConstructor;
+import oba.backend.server.auth.CustomOAuth2UserService;
+import oba.backend.server.auth.OAuth2LoginSuccessHandler;
 import oba.backend.server.common.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,9 +43,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
+                                "/oauth2/**",
+                                "/login/**",
                                 "/articles/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
 
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
