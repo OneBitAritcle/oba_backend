@@ -32,26 +32,34 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String identifier;
 
+        // 구글 OAuth (sub)
         if (oAuth2User.getAttribute("sub") != null) {
             identifier = "google:" + oAuth2User.getAttribute("sub");
+
+            // 카카오 OAuth (id)
         } else if (oAuth2User.getAttribute("id") != null) {
             identifier = "kakao:" + oAuth2User.getAttribute("id");
+
+            // 네이버 OAuth (response.id)
         } else {
             Map<String, Object> resp = (Map<String, Object>) oAuth2User.getAttribute("response");
             identifier = "naver:" + resp.get("id");
         }
 
+        // DB에서 사용자 조회
         User user = userRepository.findByIdentifier(identifier)
                 .orElseThrow(() -> new RuntimeException("OAuth2 user not found"));
 
+        // access & refresh 발급
         String access = jwtProvider.createAccessToken(user.getId(), user.getIdentifier());
         String refresh = jwtProvider.createRefreshToken(user.getId(), user.getIdentifier());
 
-        // 👉 iOS/Android 앱으로 리다이렉트
-        String redirectUrl = "myapp://oauth2redirect"
+        // Expo에서 리스닝하는 Redirect URI (앱으로 돌아옴)
+        String redirectUrl = "myapp://oauth"
                 + "?access=" + access
                 + "&refresh=" + refresh;
 
+        // 앱으로 리다이렉트
         response.sendRedirect(redirectUrl);
     }
 }
