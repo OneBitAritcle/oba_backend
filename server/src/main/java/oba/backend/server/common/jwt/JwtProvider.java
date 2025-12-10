@@ -15,8 +15,8 @@ import java.util.Date;
 public class JwtProvider {
 
     private final SecretKey key;
-    private final long accessTokenValidity;
-    private final long refreshTokenValidity;
+    private final long accessTokenValidity;   // ms 단위
+    private final long refreshTokenValidity;  // ms 단위
 
     public JwtProvider(
             @Value("${jwt.secret}") String secret,
@@ -29,32 +29,28 @@ public class JwtProvider {
     }
 
     // =====================
-    // Token 생성
+    // Token 생성 (초 단위 exp/iat)
     // =====================
-    public String createAccessToken(Long userId, String identifier) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + accessTokenValidity);
+    private String createToken(Long userId, String identifier, long validityMs) {
+
+        long nowSec = System.currentTimeMillis() / 1000;           // 현재 시간 sec
+        long expSec = nowSec + (validityMs / 1000);                // 만료 sec
 
         return Jwts.builder()
                 .claim("userId", userId)
                 .setSubject(identifier)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
+                .claim("iat", nowSec)        // 초 단위 issuedAt
+                .claim("exp", expSec)        // 초 단위 expiration
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String createRefreshToken(Long userId, String identifier) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + refreshTokenValidity);
+    public String createAccessToken(Long userId, String identifier) {
+        return createToken(userId, identifier, accessTokenValidity);
+    }
 
-        return Jwts.builder()
-                .claim("userId", userId)
-                .setSubject(identifier)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+    public String createRefreshToken(Long userId, String identifier) {
+        return createToken(userId, identifier, refreshTokenValidity);
     }
 
     public TokenResponse generateTokens(Long userId, String identifier) {

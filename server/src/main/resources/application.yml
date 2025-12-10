@@ -9,7 +9,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGO_URI}
+      uri: ${MONGODB_URI}
 
   security:
     oauth2:
@@ -19,7 +19,7 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "myapp://oauth2redirect"
+            redirect-uri: "https://c122fb63e027.ngrok-free.app/login/oauth2/code/google"
             authorization-grant-type: authorization_code
             scope:
               - email
@@ -28,7 +28,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: "myapp://oauth2redirect"
+            redirect-uri: "https://c122fb63e027.ngrok-free.app/login/oauth2/code/kakao"
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope:
@@ -39,10 +39,7 @@ spring:
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-
-            # ⭐ 반드시 실제 ngrok URL로 맞춰야 함
-            redirect-uri: "https://5960fda907fd.ngrok-free.app/api/auth/naver/callback"
-
+            redirect-uri: "https://c122fb63e027.ngrok-free.app/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             scope:
               - name
@@ -50,6 +47,12 @@ spring:
               - profile_image
 
         provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
@@ -66,3 +69,9 @@ jwt:
   secret: ${JWT_SECRET}
   access-token-expiration-ms: 3600000
   refresh-token-expiration-ms: 604800000
+
+oauth:
+  bridge-url: ${OAUTH_BRIDGE_URL}
+
+app:
+  mobile-redirect: "myapp://oauth/naver"

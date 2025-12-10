@@ -23,7 +23,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2User oAuth2User = super.loadUser(request);
 
-        String provider = request.getClientRegistration().getRegistrationId(); // google,kakao,naver
+        String provider = request.getClientRegistration().getRegistrationId(); // google / kakao / naver
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         String identifier;
@@ -43,10 +43,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             case "kakao" -> {
                 identifier = "kakao:" + attributes.get("id");
 
-                Map<String, Object> kakaoAccount =
-                        (Map<String, Object>) attributes.get("kakao_account");
-                Map<String, Object> profile =
-                        (Map<String, Object>) kakaoAccount.get("profile");
+                Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+                Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
                 email = (String) kakaoAccount.get("email");
                 name = (String) profile.get("nickname");
@@ -54,8 +52,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
 
             case "naver" -> {
-                Map<String, Object> response =
-                        (Map<String, Object>) attributes.get("response");
+                Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
                 identifier = "naver:" + response.get("id");
                 email = (String) response.get("email");
@@ -66,7 +63,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
 
-        // 사용자 생성 혹은 업데이트
+        // DB 저장 또는 업데이트
         User user = userRepository.findByIdentifier(identifier)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
@@ -79,6 +76,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .build()
                 ));
 
-        return oAuth2User;
+        // ★ 반드시 CustomOAuth2User를 반환해야 SuccessHandler와 연동됨
+        return new CustomOAuth2User(oAuth2User, user);
     }
 }

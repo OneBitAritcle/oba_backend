@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import oba.backend.server.auth.CustomOAuth2UserService;
 import oba.backend.server.auth.OAuth2LoginSuccessHandler;
 import oba.backend.server.common.jwt.JwtAuthenticationFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,7 +30,6 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOriginPatterns(List.of("*"));
@@ -37,7 +38,6 @@ public class SecurityConfig {
                     config.setAllowCredentials(true);
                     return config;
                 }))
-
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
@@ -45,8 +45,9 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/oauth2/**",
                                 "/login/**",
-                                "/api/auth/**",
-                                "/articles/**"
+                                "/login/oauth2/**",
+                                "/articles/**",
+                                "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
