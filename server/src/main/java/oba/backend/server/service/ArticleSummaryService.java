@@ -25,8 +25,12 @@ public class ArticleSummaryService {
         return docs.stream().map(doc -> {
 
             List<String> bullets = null;
+
             if (doc.getSummary() != null) {
-                bullets = Arrays.stream(doc.getSummary().split(" "))
+                // 문장 단위로 요약 분리 → 최대 3개 bullet
+                bullets = Arrays.stream(doc.getSummary().split("[\\.|·|\\n]"))
+                        .map(String::trim)
+                        .filter(s -> !s.isBlank())
                         .limit(3)
                         .toList();
             }
@@ -35,7 +39,7 @@ public class ArticleSummaryService {
                     .articleId(doc.getArticleId())
                     .title(doc.getTitle())
                     .summaryBullets(bullets)
-                    .servingDate(doc.getServingDate()) // String OK
+                    .servingDate(doc.getServingDate())
                     .build();
 
         }).toList();

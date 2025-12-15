@@ -13,9 +13,12 @@ public class ArticleDetailResponse {
     private String title;
     private String publishTime;
     private String servingDate;
-    private String content;
-    private String subtitle;
+
+    private Object content;         // 원본 배열 구조 유지
+    private Object subtitle;        // 원본 배열 구조 유지
+
     private String summary;
     private List<String> keywords;
+
     private List<Map<String, Object>> quizzes;
 }

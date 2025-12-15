@@ -35,7 +35,7 @@ public class ArticleDetailService {
                     .map(q -> Map.of(
                             "question", q.getQuestion(),
                             "options", q.getOptions(),
-                            "answer", q.getAnswer(),
+                            "answer", QuizAnswerParser.toIndex(q.getAnswer()),
                             "explanation", q.getExplanation()
                     ))
                     .toList();
@@ -46,8 +46,8 @@ public class ArticleDetailService {
                 .title(doc.getTitle())
                 .publishTime(doc.getPublishTime())
                 .servingDate(doc.getServingDate())
-                .content(String.valueOf(doc.getContent()))
-                .subtitle(String.valueOf(doc.getSubtitle()))
+                .content(doc.getContent())     // 원본 구조 그대로 내려줌
+                .subtitle(doc.getSubtitle())
                 .summary(doc.getSummary())
                 .keywords(keywordList)
                 .quizzes(quizList)
