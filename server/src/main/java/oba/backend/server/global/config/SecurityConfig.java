@@ -1,9 +1,9 @@
-package oba.backend.server.config;
+package oba.backend.server.global.config;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.auth.CustomOAuth2UserService;
-import oba.backend.server.auth.OAuth2LoginSuccessHandler;
-import oba.backend.server.common.jwt.JwtAuthenticationFilter;
+import oba.backend.server.global.auth.oauth.CustomOAuth2UserService;
+import oba.backend.server.global.auth.oauth.OAuth2LoginSuccessHandler;
+import oba.backend.server.global.auth.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
