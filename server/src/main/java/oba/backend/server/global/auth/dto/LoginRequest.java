@@ -1,4 +1,4 @@
-package oba.backend.server.dto;
+package oba.backend.server.global.auth.dto;
 
 import lombok.Getter;
 
