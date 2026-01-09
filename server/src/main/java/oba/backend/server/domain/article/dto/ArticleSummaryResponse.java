@@ -1,4 +1,4 @@
-package oba.backend.server.doma.article.dto;
+package oba.backend.server.domain.article.dto;
 
 import lombok.Builder;
 import lombok.Getter;
