@@ -1,4 +1,4 @@
-package oba.backend.server.doma.user.entity;
+package oba.backend.server.domain.user.entity;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
