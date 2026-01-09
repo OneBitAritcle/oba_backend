@@ -6,9 +6,12 @@ plugins {
 
 group = 'oba.backend'
 version = '0.0.1-SNAPSHOT'
+
 java {
-    sourceCompatibility = '17'
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
+
 
 repositories {
     mavenCentral()
@@ -26,10 +29,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+    /* -------------------- Cache -------------------- */
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
     /* -------------------- Database -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
 
     /* -------------------- JWT -------------------- */
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -39,16 +46,15 @@ dependencies {
     /* -------------------- Scheduler -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
-    /* -------------------- Dotenv (.env 로딩) -------------------- */
+    /* -------------------- Dotenv -------------------- */
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
-    /* -------------------- Lombok -------------------- */
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    /* -------------------- Lombok (최신 버전으로 업데이트) -------------------- */
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     /* -------------------- Test -------------------- */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
 }
 
