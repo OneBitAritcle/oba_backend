@@ -1,4 +1,4 @@
-package oba.backend.server.doma.article.entity;
+package oba.backend.server.domain.article.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
