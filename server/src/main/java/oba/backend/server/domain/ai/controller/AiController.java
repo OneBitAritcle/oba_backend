@@ -1,7 +1,7 @@
-package oba.backend.server.controller;
+package oba.backend.server.domain.ai.controller;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.service.AiService;
+import oba.backend.server.domain.ai.service.AiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
