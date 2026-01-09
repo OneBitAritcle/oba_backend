@@ -1,4 +1,4 @@
-package oba.backend.server.common.jwt;
+package oba.backend.server.global.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
