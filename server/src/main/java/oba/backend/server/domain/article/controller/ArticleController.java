@@ -1,10 +1,10 @@
-package oba.backend.server.doma.article.controller;
+package oba.backend.server.domain.article.controller;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.doma.article.dto.ArticleDetailResponse;
-import oba.backend.server.doma.article.dto.ArticleSummaryResponse;
-import oba.backend.server.doma.article.service.ArticleDetailService;
-import oba.backend.server.doma.article.service.ArticleSummaryService;
+import oba.backend.server.domain.article.dto.ArticleDetailResponse;
+import oba.backend.server.domain.article.dto.ArticleSummaryResponse;
+import oba.backend.server.domain.article.service.ArticleDetailService;
+import oba.backend.server.domain.article.service.ArticleSummaryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
