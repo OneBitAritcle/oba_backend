@@ -1,7 +1,7 @@
-package oba.backend.server.doma.quiz.repository;
+package oba.backend.server.domain.quiz.repository;
 
-import oba.backend.server.doma.quiz.entity.IncorrectArticles;
-import oba.backend.server.doma.quiz.entity.IncorrectArticlesId;
+import oba.backend.server.domain.quiz.entity.IncorrectArticles;
+import oba.backend.server.domain.quiz.entity.IncorrectArticlesId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
