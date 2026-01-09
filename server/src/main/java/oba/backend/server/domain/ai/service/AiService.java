@@ -1,4 +1,4 @@
-package oba.backend.server.service;
+package oba.backend.server.domain.ai.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
