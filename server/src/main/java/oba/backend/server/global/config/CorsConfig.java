@@ -1,4 +1,4 @@
-package oba.backend.server.config;
+package oba.backend.server.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
