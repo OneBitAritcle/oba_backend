@@ -1,4 +1,4 @@
-package oba.backend.server.doma.article.service;
+package oba.backend.server.domain.article.service;
 
 public class QuizAnswerParser {
 
