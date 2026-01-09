@@ -1,8 +1,8 @@
-package oba.backend.server.controller;
+package oba.backend.server.domain.quiz.controller;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.doma.quiz.dto.QuizResultRequest;
-import oba.backend.server.doma.quiz.service.QuizResultService;
+import oba.backend.server.domain.quiz.dto.QuizResultRequest;
+import oba.backend.server.domain.quiz.service.QuizResultService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
