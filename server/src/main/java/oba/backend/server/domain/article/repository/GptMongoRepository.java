@@ -1,6 +1,6 @@
-package oba.backend.server.doma.article.repository;
+package oba.backend.server.domain.article.repository;
 
-import oba.backend.server.doma.article.entity.GptDocument;
+import oba.backend.server.domain.article.entity.GptDocument;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
