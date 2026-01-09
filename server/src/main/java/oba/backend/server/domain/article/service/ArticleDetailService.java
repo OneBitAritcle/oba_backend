@@ -1,9 +1,9 @@
-package oba.backend.server.doma.article.service;
+package oba.backend.server.domain.article.service;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.doma.article.dto.ArticleDetailResponse;
-import oba.backend.server.doma.article.entity.GptDocument;
-import oba.backend.server.doma.article.repository.GptMongoRepository;
+import oba.backend.server.domain.article.dto.ArticleDetailResponse;
+import oba.backend.server.domain.article.entity.GptDocument;
+import oba.backend.server.domain.article.repository.GptMongoRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
