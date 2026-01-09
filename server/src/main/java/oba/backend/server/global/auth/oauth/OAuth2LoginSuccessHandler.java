@@ -1,8 +1,8 @@
-package oba.backend.server.auth;
+package oba.backend.server.global.auth.oauth;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.common.jwt.JwtProvider;
-import oba.backend.server.domain.user.User;
+import oba.backend.server.global.auth.jwt.JwtProvider;
+import oba.backend.server.domain.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
