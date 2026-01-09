@@ -1,4 +1,4 @@
-package oba.backend.server.entity.mongo;
+package oba.backend.server.global.common;
 
 import jakarta.persistence.*;
 import lombok.Getter;
