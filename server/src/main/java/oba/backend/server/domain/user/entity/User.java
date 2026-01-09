@@ -1,4 +1,4 @@
-package oba.backend.server.doma.user.entity;
+package oba.backend.server.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,9 +25,6 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column
-    private String nickname;
-
     @Column(length = 512)
     private String picture;
 
@@ -39,24 +36,9 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean isDeleted = false;
-
     public void updateInfo(String email, String name, String picture) {
-        if (email != null) this.email = email;
-        if (name != null) this.name = name;
-        if (picture != null) this.picture = picture;
-    }
-
-    public static User createMobileUser(String identifier) {
-        return User.builder()
-                .identifier(identifier)
-                .email(identifier + "@mobile.user")
-                .name("모바일유저")
-                .picture(null)
-                .authProvider(ProviderInfo.MOBILE)
-                .role(Role.USER)
-                .build();
+        if (email != null && !email.isBlank()) this.email = email;
+        if (name != null && !name.isBlank()) this.name = name;
+        if (picture != null && !picture.isBlank()) this.picture = picture;
     }
 }
