@@ -1,7 +1,7 @@
-package oba.backend.server.auth;
+package oba.backend.server.global.auth.oauth;
 
 import lombok.Getter;
-import oba.backend.server.domain.user.User;
+import oba.backend.server.domain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
