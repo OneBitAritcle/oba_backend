@@ -1,9 +1,9 @@
-package oba.backend.server.common.jwt;
+package oba.backend.server.global.auth.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import oba.backend.server.dto.TokenResponse;
+import oba.backend.server.global.auth.dto.TokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
