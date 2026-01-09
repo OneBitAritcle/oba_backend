@@ -1,4 +1,4 @@
-package oba.backend.server.doma.quiz.entity;
+package oba.backend.server.domain.quiz.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
