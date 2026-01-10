@@ -24,7 +24,7 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
-      database: oba   # Atlas URI에 DB 이름이 포함돼 있으면 이 부분 제거 가능
+      database: OneBitArticle   # Atlas URI에 DB 이름이 포함돼 있으면 이 부분 제거 가능
 
   security:
     oauth2:
