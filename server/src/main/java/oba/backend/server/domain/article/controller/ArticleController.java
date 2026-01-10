@@ -25,8 +25,9 @@ public class ArticleController {
         return ResponseEntity.ok(summaryService.getLatestArticles(limit));
     }
 
+    // 🚨 수정됨: @PathVariable Long -> String
     @GetMapping("/{id}")
-    public ResponseEntity<ArticleDetailResponse> getDetail(@PathVariable Long id) {
+    public ResponseEntity<ArticleDetailResponse> getDetail(@PathVariable String id) {
         return ResponseEntity.ok(detailService.getArticleDetail(id));
     }
 }
