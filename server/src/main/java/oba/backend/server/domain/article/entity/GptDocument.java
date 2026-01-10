@@ -7,12 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
+// 1. AI 서버가 저장하는 컬렉션 이름과 정확히 일치 (대소문자 구분)
 @Document(collection = "Selected_Articles")
 @Data
 public class GptDocument {
 
     @Id
-    private String id;
+    private String id; // MongoDB ID
 
     @Field("article_id")
     private Long articleId;
@@ -26,14 +27,15 @@ public class GptDocument {
     private String servingDate;
 
     @Field("content_col")
-    private Object content;
+    private List<Object> content;
 
     @Field("sub_col")
-    private Object subtitle;
+    private List<String> subtitle;
 
     @Field("gpt_result")
     private GptResult gptResult;
 
+    // --- Inner Classes ---
     @Data
     public static class GptResult {
         private String summary;
