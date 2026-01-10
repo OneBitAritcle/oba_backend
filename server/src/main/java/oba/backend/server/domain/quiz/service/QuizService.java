@@ -1,10 +1,10 @@
-package oba.backend.server.doma.quiz.service;
+package oba.backend.server.domain.quiz.service;
 
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.global.auth.jwt.JwtProvider;
-import oba.backend.server.doma.quiz.entity.IncorrectQuiz;
-import oba.backend.server.doma.quiz.dto.QuizSubmitRequest;
-import oba.backend.server.doma.quiz.repository.IncorrectQuizRepository;
+import oba.backend.server.domain.quiz.entity.IncorrectQuiz;
+import oba.backend.server.domain.quiz.dto.QuizSubmitRequest;
+import oba.backend.server.domain.quiz.repository.IncorrectQuizRepository;
 import org.springframework.stereotype.Service;
 
 @Service
