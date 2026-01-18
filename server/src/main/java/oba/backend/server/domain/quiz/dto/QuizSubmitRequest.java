@@ -1,12 +1,12 @@
 package oba.backend.server.domain.quiz.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@Setter
 public class QuizSubmitRequest {
-    private Long articleId;
-    private List<Integer> answers; // 0 or 1
+    private String articleId;
+    private List<Integer> answers; // 사용자가 선택한 보기 인덱스들
 }

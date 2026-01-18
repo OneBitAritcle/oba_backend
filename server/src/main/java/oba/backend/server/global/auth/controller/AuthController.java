@@ -1,14 +1,13 @@
 package oba.backend.server.global.auth.controller;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.domain.user.entity.ProviderInfo;
-import oba.backend.server.domain.user.entity.Role;
 import oba.backend.server.domain.user.entity.User;
+import oba.backend.server.domain.user.service.UserService;
 import oba.backend.server.global.auth.dto.LoginRequest;
 import oba.backend.server.global.auth.dto.TokenResponse;
 import oba.backend.server.global.auth.jwt.JwtProvider;
+import oba.backend.server.global.auth.oauth.OAuth2UserInfo;
 import oba.backend.server.global.common.Const;
-import oba.backend.server.domain.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,20 +19,18 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
-    // 모바일 소셜 로그인 (ID Token 검증은 클라이언트가 했다고 가정)
+    // 모바일 소셜 로그인
     @PostMapping("/mobile/login")
     public ResponseEntity<TokenResponse> mobileLogin(@RequestBody LoginRequest request) {
-        String identifier = "mobile:" + request.getIdToken();
+        // OAuth2UserInfo 가방에 담아서 서비스에 전달
+        OAuth2UserInfo userInfo = OAuth2UserInfo.builder()
+                .id(request.getIdToken())
+                .email(request.getIdToken() + "@mobile.user")
+                .name("모바일유저")
+                .provider("MOBILE") // AuthProvider.MOBILE로 매핑
+                .build();
 
-        // Mobile 유저는 별도 프로필 정보가 없으므로 기본값 사용
-        User user = userService.findOrCreateUser(
-                identifier,
-                identifier + "@mobile.user",
-                "모바일유저",
-                null,
-                ProviderInfo.MOBILE,
-                Role.USER
-        );
+        User user = userService.registerOrUpdateUser(userInfo);
 
         return ResponseEntity.ok(jwtProvider.generateTokens(user.getId(), user.getIdentifier()));
     }
@@ -51,7 +48,6 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
 
-        // 토큰에서 정보 추출 후 재발급
         Long userId = jwtProvider.getUserId(token);
         String identifier = jwtProvider.getIdentifier(token);
 

@@ -2,11 +2,11 @@ package oba.backend.server.domain.quiz.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class QuizResultRequest {
-    private Long articleId;
-    private boolean correct;
-    private int selectedOption;
+    private String articleId;
+    private List<Boolean> results;
 }

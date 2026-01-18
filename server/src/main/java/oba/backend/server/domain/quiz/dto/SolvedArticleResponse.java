@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SolvedArticleResponse {
-    private Long articleId;
+    private String articleId;
     private String title;
     private String summary;
     private String solvedAt;

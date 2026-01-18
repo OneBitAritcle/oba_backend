@@ -11,7 +11,7 @@ import java.util.Objects;
 public class IncorrectArticlesId implements Serializable {
 
     private Long userId;
-    private Long articleId;
+    private String articleId;
 
     @Override
     public boolean equals(Object o) {

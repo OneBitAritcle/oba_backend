@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class AiService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @Value("${ai.server.url:http://ai_backend:8000/generate_daily_gpt_results}")
     private String fastApiUrl;

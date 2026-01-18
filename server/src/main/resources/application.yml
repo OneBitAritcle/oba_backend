@@ -4,7 +4,7 @@ server:
 
 spring:
   config:
-    import: optional:file:./.env[.properties] # .env 파일을 읽도록 추가
+    import: optional:file:./.env[.properties]
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -14,7 +14,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # 운영에서는 validate 권장
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
@@ -24,7 +26,7 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
-      database: OneBitArticle   # Atlas URI에 DB 이름이 포함돼 있으면 이 부분 제거 가능
+      database: OneBitArticle
 
   security:
     oauth2:
@@ -33,30 +35,22 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            redirect-uri: "http://dev.onebitearticle.com:9000/login/oauth2/code/google"
             authorization-grant-type: authorization_code
-            scope:
-              - email
-              - profile
+            scope: [email, profile]
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
+            redirect-uri: "http://dev.onebitearticle.com:9000/login/oauth2/code/kakao"
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            scope:
-              - profile_nickname
-              - profile_image
-              - account_email
+            scope: [profile_nickname, profile_image, account_email]
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: "{baseUrl}/login/oauth2/code/naver"
+            redirect-uri: "http://dev.onebitearticle.com:9000/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
-            scope:
-              - name
-              - email
-              - profile_image
+            scope: [name, email, profile_image]
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
@@ -83,8 +77,8 @@ ai:
   server:
     url: ${AI_SERVER_URL}
 
-oauth:
-  bridge-url: "http://localhost:9000/oauth2/bridge"
-
 app:
-  mobile-redirect: "myapp://oauth/naver"
+  mobile-redirect: ${MOBILE_REDIRECT_URI}
+
+cors:
+  allowed-origins: "http://localhost:3000, http://192.168.219.101:8081, https://onebitearticle.com, http://localhost:8081"

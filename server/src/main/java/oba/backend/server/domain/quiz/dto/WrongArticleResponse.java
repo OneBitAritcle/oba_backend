@@ -1,18 +1,15 @@
 package oba.backend.server.domain.quiz.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class WrongArticleResponse {
-    private Long articleId;
+    private String articleId;
     private String title;
     private String summary;
-    private boolean[] incorrectAnswers;
+    private String imageUrl;
+    private String category;
     private String solvedAt;
 }
