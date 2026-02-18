@@ -3,6 +3,7 @@ package oba.backend.server.config;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.security.CustomAuthorizationRequestResolver;
 import oba.backend.server.security.CustomOAuth2UserService;
+import oba.backend.server.security.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +18,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomAuthorizationRequestResolver customAuthorizationRequestResolver;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,7 +43,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .authorizationEndpoint(a -> a.authorizationRequestResolver(customAuthorizationRequestResolver))
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("/login?loggedIn", true)
+                        .successHandler(oAuth2SuccessHandler)
                         .failureHandler(keepSessionFailure)
                 )
                 .logout(l -> l
