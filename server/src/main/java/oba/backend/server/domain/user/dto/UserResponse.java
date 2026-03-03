@@ -21,6 +21,8 @@ public class UserResponse {
     private int consecutiveDays;
     private List<Boolean> weeklyLog;
 
+    private java.time.LocalDateTime createdAt;
+
     public static UserResponse from(User user, List<Boolean> weeklyLog) {
         int streak = (user.getUserStats() != null) ? user.getUserStats().getCurrentStreak() : 0;
 
@@ -33,6 +35,7 @@ public class UserResponse {
                         user.getAuthProvider().name() : "UNKNOWN")
                 .consecutiveDays(streak)
                 .weeklyLog(weeklyLog)
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

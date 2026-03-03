@@ -12,4 +12,5 @@ public class ArticleSummaryResponse {
     private String title;
     private List<String> summaryBullets;
     private String servingDate;
+    private String thumbnail;
 }

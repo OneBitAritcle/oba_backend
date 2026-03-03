@@ -27,6 +27,17 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
+    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger-resources/**",
+                "/swagger-ui.html",
+                "/webjars/**"
+        );
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
@@ -50,6 +61,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 기사 조회(GET)는 로그인 없이 허용
                         .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
+
+                        // Swagger UI 및 API 문서 허용
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
 
                         // 로그인/인증 관련 경로는 모두 허용
                         .requestMatchers(

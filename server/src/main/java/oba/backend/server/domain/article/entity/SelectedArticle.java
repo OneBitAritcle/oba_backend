@@ -44,6 +44,15 @@ public class SelectedArticle {
         return contentCol.stream().flatMap(List::stream).collect(Collectors.toList());
     }
 
+    public String getFirstImageUrl() {
+        for (String line : getContent()) {
+            if (line != null && line.trim().startsWith("<img>")) {
+                return line.trim().replace("<img>", "").trim();
+            }
+        }
+        return null;
+    }
+
     public List<String> getSummaryBullets() {
         if (gptResult != null && gptResult.getSummary() != null) {
             String rawSummary = gptResult.getSummary();

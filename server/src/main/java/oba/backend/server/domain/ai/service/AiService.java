@@ -12,7 +12,7 @@ public class AiService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${ai.server.url:http://ai_backend:8000/generate_daily_gpt_results}")
+    @Value("${ai.server.url:http://ai_service:8000/generate/daily_gpt_results}")
     private String fastApiUrl;
 
     public String runDailyGptTask() {

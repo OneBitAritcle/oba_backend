@@ -24,6 +24,7 @@ public class ArticleSummaryService {
                         .title(doc.getTitle())
                         .summaryBullets(doc.getSummaryBullets()) // 엔티티 메서드 사용
                         .servingDate(doc.getServingDate())     // 엔티티 Getter 사용
+                        .thumbnail(doc.getFirstImageUrl())
                         .build())
                 .collect(Collectors.<ArticleSummaryResponse>toList());
     }
