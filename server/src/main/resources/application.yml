@@ -75,7 +75,7 @@ jwt:
 
 ai:
   server:
-    url: ${AI_SERVER_URL}
+    url: ${AI_SERVER_URL:http://localhost:8000}
 
 app:
   mobile-redirect: ${MOBILE_REDIRECT_URI}
