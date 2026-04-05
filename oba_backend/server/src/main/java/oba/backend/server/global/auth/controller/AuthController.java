@@ -4,14 +4,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.domain.user.entity.User;
 import oba.backend.server.domain.user.service.UserService;
+import oba.backend.server.global.auth.dto.ChangePasswordRequest;
 import oba.backend.server.global.auth.dto.LoginRequest;
+import oba.backend.server.global.auth.dto.SignupRequest;
 import oba.backend.server.global.auth.dto.TokenResponse;
 import oba.backend.server.global.auth.jwt.JwtProvider;
-import oba.backend.server.global.auth.oauth.OAuth2UserInfo;
 import oba.backend.server.global.exception.BusinessException;
 import oba.backend.server.global.exception.ErrorCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,17 +25,18 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
-    @PostMapping("/mobile/login")
-    public ResponseEntity<TokenResponse> mobileLogin(@Valid @RequestBody LoginRequest request) {
-        OAuth2UserInfo userInfo = OAuth2UserInfo.builder()
-                .id(request.getIdToken())
-                .email(request.getIdToken() + "@mobile.user")
-                .name("모바일유저")
-                .provider("MOBILE")
-                .build();
+    @PostMapping("/signup")
+    public ResponseEntity<TokenResponse> signup(@Valid @RequestBody SignupRequest request) {
+        User user = userService.register(request.getEmail(), request.getPassword(), request.getName());
+        TokenResponse tokens = jwtProvider.generateTokens(user.getId(), user.getIdentifier());
+        return ResponseEntity.status(HttpStatus.CREATED).body(tokens);
+    }
 
-        User user = userService.registerOrUpdateUser(userInfo);
-        return ResponseEntity.ok(jwtProvider.generateTokens(user.getId(), user.getIdentifier()));
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        User user = userService.login(request.getEmail(), request.getPassword());
+        TokenResponse tokens = jwtProvider.generateTokens(user.getId(), user.getIdentifier());
+        return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/reissue")
@@ -48,5 +53,14 @@ public class AuthController {
         Long userId = jwtProvider.getUserId(token);
         String identifier = jwtProvider.getIdentifier(token);
         return ResponseEntity.ok(jwtProvider.generateTokens(userId, identifier));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<Map<String, String>> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        Long userId = jwtProvider.extractUserIdFromHeader(authHeader);
+        userService.changePassword(userId, request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok(Map.of("message", "비밀번호가 변경되었습니다."));
     }
 }

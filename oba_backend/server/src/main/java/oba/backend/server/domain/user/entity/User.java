@@ -21,8 +21,11 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String identifier;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = false)
     private String name;
@@ -45,19 +48,23 @@ public class User extends BaseEntity {
     private UserStats userStats;
 
     @Builder
-    public User(String identifier, String email, String name, String picture, Role role, AuthProvider authProvider) {
+    public User(String identifier, String email, String password, String name, String picture, Role role, AuthProvider authProvider) {
         this.identifier = identifier;
         this.email = email;
+        this.password = password;
         this.name = name;
         this.picture = picture;
         this.role = role;
         this.authProvider = authProvider;
     }
 
-    public void updateInfo(String email, String name, String picture) {
-        this.email = email;
-        this.name = name;
-        this.picture = picture;
+    public void updateProfile(String name, String picture) {
+        if (name != null && !name.isBlank()) this.name = name;
+        if (picture != null) this.picture = picture;
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
     public void updateNickname(String nickname) {
