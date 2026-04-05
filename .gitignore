@@ -2,3 +2,30 @@
 application-local.properties
 .env
 
+# Build artifacts
+**/build/
+**/.gradle/
+**/.expo/
+**/dist/
+
+# Dependencies
+**/node_modules/
+**/venv/
+
+# Cache
+**/__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+
+# Credentials
+oba-key.pem
+secret/
+
