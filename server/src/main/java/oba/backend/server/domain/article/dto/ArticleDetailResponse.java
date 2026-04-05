@@ -16,6 +16,7 @@ public class ArticleDetailResponse {
 
     private String articleId;
     private String title;
+    private List<String> categoryName;
     private List<String> content;
     private List<String> summaryBullets;
     private List<KeywordDto> keywords;

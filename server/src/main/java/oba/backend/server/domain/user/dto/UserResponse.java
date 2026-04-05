@@ -16,6 +16,8 @@ public class UserResponse {
     private Long userId;
     private String email;
     private String name;
+    private String nickname;
+    private String displayName;
     private String picture;
     private String authProvider;
     private int consecutiveDays;
@@ -28,6 +30,8 @@ public class UserResponse {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
+                .nickname(user.getNickname())
+                .displayName(user.getDisplayName())
                 .picture(user.getPicture())
                 .authProvider(user.getAuthProvider() != null ?
                         user.getAuthProvider().name() : "UNKNOWN")

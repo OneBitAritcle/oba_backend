@@ -17,16 +17,20 @@ spring:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
   data:
     mongodb:
       uri: ${MONGODB_URI}
       database: OneBitArticle
+      auto-index-creation: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.mongo.MongoHealthContributorAutoConfiguration
 
   security:
     oauth2:
@@ -35,20 +39,20 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "http://dev.onebitearticle.com:9000/login/oauth2/code/google"
+            redirect-uri: "${OAUTH_BASE_URL:http://localhost:9000}/login/oauth2/code/google"
             authorization-grant-type: authorization_code
             scope: [email, profile]
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: "http://dev.onebitearticle.com:9000/login/oauth2/code/kakao"
+            redirect-uri: "${OAUTH_BASE_URL:http://localhost:9000}/login/oauth2/code/kakao"
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: [profile_nickname, profile_image, account_email]
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: "http://dev.onebitearticle.com:9000/login/oauth2/code/naver"
+            redirect-uri: "${OAUTH_BASE_URL:http://localhost:9000}/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             scope: [name, email, profile_image]
         provider:
@@ -76,9 +80,10 @@ jwt:
 ai:
   server:
     url: ${AI_SERVER_URL:http://localhost:8000}
+  internal-key: ${AI_INTERNAL_KEY:}
 
 app:
   mobile-redirect: ${MOBILE_REDIRECT_URI}
 
 cors:
-  allowed-origins: "http://localhost:3000, http://192.168.219.101:8081, https://onebitearticle.com, http://localhost:8081"
+  allowed-origins: "http://localhost:3000, http://192.168.219.101:8081, https://onebitearticle.com, http://onebitearticle.com, http://localhost:8081"

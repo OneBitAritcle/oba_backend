@@ -49,7 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 case "google" -> ofGoogle(attributes);
                 case "kakao" -> ofKakao(attributes);
                 case "naver" -> ofNaver(attributes);
-                default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
+                default -> throw new org.springframework.security.oauth2.core.OAuth2AuthenticationException("지원하지 않는 OAuth2 제공자: " + provider);
             };
         }
 

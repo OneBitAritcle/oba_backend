@@ -27,6 +27,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 50)
+    private String nickname;
+
     @Column(length = 512)
     private String picture;
 
@@ -57,6 +60,14 @@ public class User extends BaseEntity {
         this.picture = picture;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getDisplayName() {
+        return (nickname != null && !nickname.isBlank()) ? nickname : name;
+    }
+
     public void initStats() {
         if (this.userStats == null) {
             this.userStats = UserStats.builder().user(this).build();
@@ -64,8 +75,9 @@ public class User extends BaseEntity {
     }
 
     public void updateStreak() {
-        if (this.userStats != null) {
-            this.userStats.updateStreak();
+        if (this.userStats == null) {
+            initStats();
         }
+        this.userStats.updateStreak();
     }
 }

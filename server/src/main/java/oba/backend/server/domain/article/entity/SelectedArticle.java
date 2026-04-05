@@ -32,6 +32,9 @@ public class SelectedArticle {
     @Field("publish_time")
     private String publishTime;
 
+    @Field("category_name")
+    private List<String> categoryName;
+
     @Field("content_col")
     private List<List<String>> contentCol;
 
@@ -85,15 +88,20 @@ public class SelectedArticle {
         public int getAnswerIndex() {
             try {
                 if (answer == null) return -1;
-                String numericPart = answer.replaceAll("[^0-9]", "");
-                if (!numericPart.isEmpty() && numericPart.length() < 3) {
-                    return Integer.parseInt(numericPart) - 1;
-                }
+                // 1. 텍스트 매칭 우선 (옵션 텍스트와 answer 비교)
+                String cleanAnswer = answer.trim();
                 for (int i = 0; i < options.size(); i++) {
                     String option = options.get(i).trim();
-                    String cleanAnswer = answer.trim();
                     if (option.equals(cleanAnswer) || option.contains(cleanAnswer) || cleanAnswer.contains(option)) {
                         return i;
+                    }
+                }
+                // 2. 텍스트 매칭 실패 시 숫자 파싱 (예: "1)", "2)" 형식)
+                String numericPart = answer.replaceAll("[^0-9]", "");
+                if (!numericPart.isEmpty() && numericPart.length() <= 2) {
+                    int idx = Integer.parseInt(numericPart) - 1;
+                    if (idx >= 0 && idx < options.size()) {
+                        return idx;
                     }
                 }
             } catch (Exception e) {
