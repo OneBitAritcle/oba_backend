@@ -1,0 +1,51 @@
+services:
+  backend:
+    build: .
+    container_name: ai_backend
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    command: [
+      "uvicorn", 
+      "app:app", 
+      "--host", "0.0.0.0", 
+      "--port", "8000", 
+      "--reload"
+    ] 
+    networks:
+      - ai_network
+
+  nginx:
+    image: nginx:1.25
+    container_name: ai_frontend
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ai_network
+
+  mongodb:
+    image: mongo:7
+    container_name: ai_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: OneBitArticle
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ai_network
+
+networks:
+  ai_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
