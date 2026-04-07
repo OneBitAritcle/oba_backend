@@ -4,16 +4,12 @@ import { Animated, useWindowDimensions } from "react-native";
 export default function usePizzaAnimation() {
   const anim = useRef(new Animated.Value(0)).current;
   const { width, height } = useWindowDimensions();
-
-  // 아이폰 미니 기준 스케일
   const factor = Math.min(width, height) / 390;
-
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => {
     const next = !isOpen;
     setIsOpen(next);
-
     Animated.spring(anim, {
       toValue: next ? 1 : 0,
       friction: 6,
@@ -22,74 +18,64 @@ export default function usePizzaAnimation() {
     }).start();
   };
 
-  /* -------------------------------
-   * ✅ 닫힌 상태에서 전체 피자(베이스 포함)를 좌상단으로 조금 이동
-   * - 원하는 만큼만 바꾸면 됨 (지금은 약 20px)
-   * ----------------------------- */
-  const CLOSED_SHIFT = { x: -20 * factor, y: -20 * factor };
+  // ═══ GEOMETRY (all in base units × factor) ═══
+  //
+  // Container: 70×70.
+  // Slice wrapper: absoluteFill → same as container (0,0)-(70,70).
+  // sliceContainer: position:absolute at (0,0) of wrapper = container (0,0).
+  // After translate(tx,ty): slice top-left at (tx, ty).
+  //
+  // Half-pizza: 581×628 original, contain in 70×70 → renders 64.76×70.
+  //   Content offset in box: ((70-64.76)/2, 0) = (2.62, 0).
+  //   Transform translateX=-5 shifts image box left.
+  //   Content top-left: (-5 + 2.62, 0) = (-2.38, 0).
+  //   Pizza center (555/581, 335/628) → rendered (61.86, 37.34) from content top-left.
+  //   Pizza center in container: (-2.38 + 61.86, 37.34) = (59.48, 37.34).
+  //
+  // Slice tip = (tx + tipX, ty + tipY) must equal pizza center.
+  //   tx = 59.48 - tipX,  ty = 37.34 - tipY
+  //
+  // Revised pizza center: ~(340, 360) in 581×628 original
+  //   → rendered (37.9, 40.1) in 64.76×70 image
+  //   → container coords: (-5 + 2.62 + 37.9, 40.1) = (35.52, 40.13)
+  //
+  // Slice 1 (24×33): tip at (15/235, 316/326) → (1.53, 31.98) → tx=34.0, ty=8.1
+  // Slice 2 (33×29): tip at (160/324, 275/283) → (16.30, 28.18) → tx=19.2, ty=12.0
+  // Slice 3 (34×26): tip at (310/330, 248/257) → (31.94, 25.09) → tx=3.6, ty=15.0
 
-  // ✅ 열렸을 때 베이스 위치 (닫힌 위치보다 조금 더 왼쪽 위로 이동)
-  const OPEN_SHIFT_BASE = { x: -20 * factor, y: -20 * factor };
+  const HALF_TX = -5 * factor;
+  const baseX = anim.interpolate({ inputRange: [0, 1], outputRange: [HALF_TX, HALF_TX] });
+  const baseY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 0] });
 
-  // ✅ 베이스(조각 외 나머지 피자) 이동
-  const baseX = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [CLOSED_SHIFT.x, OPEN_SHIFT_BASE.x],
-  });
-  const baseY = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [CLOSED_SHIFT.y, OPEN_SHIFT_BASE.y],
-  });
-
-  /* -------------------------------
-   * 닫힌 상태: (조각 좌표는 그대로 두거나)
-   * - 조각도 같이 이동시키고 싶으면 CLOSED에도 CLOSED_SHIFT를 더해도 됨
-   * ----------------------------- */
   const CLOSED = {
-    slice1: { x: -27.5 * factor, y: -37.1 * factor },
-    slice2: { x: -38.4 * factor, y: -34.8 * factor },
-    slice3: { x: -39.2 * factor, y: -15.2 * factor },
+    slice1: { x: 34.0 * factor, y: 8.1 * factor },
+    slice2: { x: 19.2 * factor, y: 12.0 * factor },
+    slice3: { x: 3.6 * factor,  y: 15.0 * factor },
   };
 
   const OPEN = {
-    slice1: { x: -76.4 * factor, y: -109.0 * factor },
-    slice2: { x: -120.3 * factor, y: -89.0 * factor },
-    slice3: { x: -125.6 * factor, y: -33.7 * factor },
+    slice1: { x: CLOSED.slice1.x - 65 * factor, y: CLOSED.slice1.y - 80 * factor },
+    slice2: { x: CLOSED.slice2.x - 95 * factor, y: CLOSED.slice2.y - 55 * factor },
+    slice3: { x: CLOSED.slice3.x - 90 * factor, y: CLOSED.slice3.y - 15 * factor },
   };
 
   const slice1X = anim.interpolate({ inputRange: [0, 1], outputRange: [CLOSED.slice1.x, OPEN.slice1.x] });
   const slice1Y = anim.interpolate({ inputRange: [0, 1], outputRange: [CLOSED.slice1.y, OPEN.slice1.y] });
-
   const slice2X = anim.interpolate({ inputRange: [0, 1], outputRange: [CLOSED.slice2.x, OPEN.slice2.x] });
   const slice2Y = anim.interpolate({ inputRange: [0, 1], outputRange: [CLOSED.slice2.y, OPEN.slice2.y] });
-
   const slice3X = anim.interpolate({ inputRange: [0, 1], outputRange: [CLOSED.slice3.x, OPEN.slice3.x] });
   const slice3Y = anim.interpolate({ inputRange: [0, 1], outputRange: [CLOSED.slice3.y, OPEN.slice3.y] });
 
-  const halfScale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.8] });
-
-  const sliceScale = anim.interpolate({
-    inputRange: [0, 1.7, 1.8],
-    outputRange: [0.6, 1.8, 1.7],
-  });
+  const halfScale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] });
+  const sliceScale = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1.6, 1.5] });
+  const sliceOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1] });
 
   return {
-    toggle,
-    isOpen,
-    factor,
-    anim,
-
-    // ✅ 추가로 내보내기 (베이스용)
-    baseX,
-    baseY,
-
-    halfScale,
-    sliceScale,
-    slice1X,
-    slice1Y,
-    slice2X,
-    slice2Y,
-    slice3X,
-    slice3Y,
+    toggle, isOpen, factor, anim,
+    baseX, baseY, halfScale,
+    sliceScale, sliceOpacity,
+    slice1X, slice1Y,
+    slice2X, slice2Y,
+    slice3X, slice3Y,
   };
 }

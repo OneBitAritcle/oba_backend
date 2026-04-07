@@ -22,14 +22,12 @@ type Props = {
   factor: number;
   anim?: Animated.Value;
   label?: string;
-
   labelOffsetX?: number;
   labelOffsetY?: number;
   labelIconSource?: ImageSourcePropType;
-
-  sliceSize?: number;        // 이미지 자체 크기
-  sliceRotation?: number;    // 회전값
-  sliceTouchScale?: number;  // 터치 가능 영역 축소 비율
+  sliceWidth: number;
+  sliceHeight: number;
+  sliceOpacity?: Animated.AnimatedInterpolation<number>;
 };
 
 export default function PizzaSlice({
@@ -46,39 +44,26 @@ export default function PizzaSlice({
   labelOffsetX,
   labelOffsetY,
   labelIconSource,
-  sliceSize = 60,
-  sliceRotation = 0,
-  sliceTouchScale = 0.72,  // ← 터치 영역 기본 축소 (겹침 방지 핵심 👈)
+  sliceWidth,
+  sliceHeight,
+  sliceOpacity,
 }: Props) {
-
-  const DEBUG_TOUCH = false;
   const router = useRouter();
 
-
-  // 라벨 Fade-in
   const labelOpacity = anim
-    ? anim.interpolate({
-      inputRange: [0, 0.6, 1],
-      outputRange: [0, 0, 1],
-    })
+    ? anim.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1] })
     : 0;
 
   const baseSlideX = anim
-    ? anim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [10 * factor, 0],
-    })
+    ? anim.interpolate({ inputRange: [0, 1], outputRange: [10 * factor, 0] })
     : 0;
 
   const labelScale = anim
-    ? anim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.9, 1],
-    })
+    ? anim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] })
     : 1;
 
-  const finalSize = sliceSize * factor;
-  const touchSize = finalSize * sliceTouchScale; // ← 조정된 터치 영역 크기
+  const w = sliceWidth * factor;
+  const h = sliceHeight * factor;
 
   const finalOffsetX = (labelOffsetX ?? 0) * factor;
   const finalOffsetY = (labelOffsetY ?? 0) * factor;
@@ -86,7 +71,6 @@ export default function PizzaSlice({
   const translateXWithOffset = anim
     ? Animated.add(baseSlideX, new Animated.Value(finalOffsetX))
     : new Animated.Value(finalOffsetX);
-
   const translateYWithOffset = new Animated.Value(finalOffsetY);
 
   const handlePress = () => {
@@ -107,55 +91,24 @@ export default function PizzaSlice({
       style={[
         styles.sliceContainer,
         {
+          opacity: sliceOpacity ?? 1,
           transform: [{ translateX }, { translateY }],
         },
       ]}
       pointerEvents="box-none"
     >
-      {/* 🎯 터치 가능한 실제 영역 */}
-      <Pressable
-        onPress={handlePress}
-        style={[
-          {
-            width: touchSize,
-            height: touchSize,
-            justifyContent: "center",
-            alignItems: "center",
-          },
-          DEBUG_TOUCH && {
-            backgroundColor: "rgba(0,255,0,0.35)",
-            borderWidth: 1,
-            borderColor: "green",
-          },
-        ]}
-        hitSlop={0}
+      <Pressable onPress={handlePress} hitSlop={0}
+        style={{ width: w, height: h, justifyContent: "center", alignItems: "center" }}
       >
-        {/* 🍕 실제 조각 이미지 */}
-        <Animated.View
-          style={{
-            width: finalSize,
-            height: finalSize,
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-          }}
+        <Animated.Image
+          source={source}
+          style={{ width: w, height: h, transform: [{ scale }] }}
+          resizeMode="contain"
           pointerEvents="none"
-        >
-          <Animated.Image
-            source={source}
-            style={{
-              width: finalSize,
-              height: finalSize,
-              transform: [{ scale }, { rotate: `${sliceRotation}deg` }],
-            }}
-            resizeMode="contain"
-          />
-        </Animated.View>
+        />
 
-        {/* 💬 라벨 */}
         {label && (
           <Animated.View
-            // pointerEvents="none"
             style={[
               styles.labelWrapper,
               {
@@ -168,31 +121,18 @@ export default function PizzaSlice({
               },
             ]}
           >
-            <View
-              style={[
-                styles.labelBubble,
-                {
-                  borderRadius: 4 * factor,
-                  paddingHorizontal: 6 * factor,
-                  paddingVertical: 2 * factor,
-                },
-              ]}
-            >
+            <View style={[styles.labelBubble, {
+              borderRadius: 4 * factor,
+              paddingHorizontal: 6 * factor,
+              paddingVertical: 2 * factor,
+            }]}>
               <View style={styles.labelInner}>
                 {labelIconSource && (
-                  <Image
-                    source={labelIconSource}
-                    style={{
-                      width: 10 * factor,
-                      height: 10 * factor,
-                      marginRight: 4 * factor,
-                    }}
+                  <Image source={labelIconSource}
+                    style={{ width: 10 * factor, height: 10 * factor, marginRight: 4 * factor }}
                   />
                 )}
-                <Text
-                  style={[styles.labelText, { fontSize: 13 * factor }]}
-                  numberOfLines={1}
-                >
+                <Text style={[styles.labelText, { fontSize: 13 * factor }]} numberOfLines={1}>
                   {label}
                 </Text>
               </View>
@@ -202,30 +142,22 @@ export default function PizzaSlice({
       </Pressable>
     </Animated.View>
   );
-
 }
 
 const styles = StyleSheet.create({
   sliceContainer: { position: "absolute" },
-
   labelWrapper: { position: "absolute" },
-
   labelBubble: {
-    backgroundColor: "rgba(255,255,255,0.7)",
-    shadowColor: "#4f4f4fff",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 1, height: 1 },
-    shadowRadius: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    shadowColor: "#8B6F47",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 4,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255, 140, 66, 0.25)",
   },
-
-  labelInner: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  labelText: {
-    color: "#000000ff",
-    fontWeight: "500",
-  },
+  labelInner: { flexDirection: "row", alignItems: "center" },
+  labelText: { color: "#2D2016", fontWeight: "700" },
 });

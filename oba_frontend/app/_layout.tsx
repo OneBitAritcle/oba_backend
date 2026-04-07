@@ -12,7 +12,7 @@ const MyTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: "transparent",
+    background: "#FFF8F0",
   },
 }
 
@@ -36,7 +36,7 @@ function RootNavigator() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#FF8C42" />
       </View>
     )
   }
@@ -55,15 +55,15 @@ export default function RootLayout() {
     <AuthProvider>
       <SafeAreaProvider>
         <ThemeProvider value={MyTheme}>
-          <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
-            <View style={{ flex: 1, backgroundColor: "transparent" }}>
+          <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF8F0" }}>
+            <View style={{ flex: 1, backgroundColor: "#FFF8F0" }}>
               <AppBackground />
-              <View style={{ flex: 1, backgroundColor: "transparent" }}>
+              <View style={{ flex: 1 }}>
                 <RootNavigator />
               </View>
             </View>
           </SafeAreaView>
-          <StatusBar style="auto" />
+          <StatusBar style="dark" />
         </ThemeProvider>
       </SafeAreaProvider>
     </AuthProvider>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://onebitearticle.com";
+const BASE_URL = "https://onebitearticle.com";
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,

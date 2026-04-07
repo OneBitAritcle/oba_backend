@@ -2,6 +2,7 @@
 
 import json
 import re
+import random
 from datetime import datetime
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
@@ -40,7 +41,7 @@ class AiService:
 
         keywords: 기사 속에서 IT 취업준비생이 반드시 이해해야 하는 핵심 기술 개념 또는 최신 기술 트렌드를 10개 이내로 추출하고, 각 키워드는 신뢰할 수 있고 명확한 기술 설명을 붙여줘.
 
-        quizzes: 기사를 읽고 학습한 내용을 점검할 수 있도록, 기사 내용 기반의 4지선다형 퀴즈 5개를 생성해줘. 각 퀴즈는 질문, 보기 4개, 정답 1개 (0~3 인덱스 번호가 아닌 정답 텍스트 혹은 번호 문자열), 정답과 오답에 대한 상세한 해설을 포함해야 해.
+        quizzes: 기사를 읽고 학습한 내용을 점검할 수 있도록, 기사 내용 기반의 4지선다형 퀴즈 5개를 생성해줘. 각 퀴즈는 질문, 보기 4개, 정답의 인덱스 번호(0~3), 정답과 오답에 대한 상세한 해설을 포함해야 해. 정답이 고르게 분포되도록 해줘(모든 문제의 정답이 같은 번호가 되면 안 됨).
 
         결과물은 반드시 JSON 형식으로만 출력해야 하며, 마크다운 태그(```json)는 제외해.
 
@@ -54,7 +55,7 @@ class AiService:
                 {{
                     "question": "질문",
                     "options": ["보기1", "보기2", "보기3", "보기4"],
-                    "answer": "정답",
+                    "answer": 0,
                     "explanation": "해설"
                 }}
             ]
@@ -76,10 +77,13 @@ class AiService:
             clean_json = raw_output.replace("```json", "").replace("```", "").strip()
             
             result_dict = json.loads(clean_json)
-            
+
             # Pydantic을 이용한 구조 검증 (선택 사항, 데이터 무결성 보장)
-            GptResponse(**result_dict) 
-            
+            GptResponse(**result_dict)
+
+            # 정답 위치 셔플 (GPT가 특정 위치에 편중하는 문제 방지)
+            self._shuffle_quiz_answers(result_dict)
+
             return result_dict
 
         except json.JSONDecodeError:
@@ -87,6 +91,23 @@ class AiService:
         except Exception as e:
             print(f"GPT Error: {e}")
             raise HTTPException(status_code=500, detail=f"AI 서비스 오류: {str(e)}")
+
+    def _shuffle_quiz_answers(self, result_dict: dict):
+        """퀴즈 보기 순서를 랜덤으로 셔플하여 정답 위치를 고르게 분포"""
+        quizzes = result_dict.get("quizzes", [])
+        for quiz in quizzes:
+            options = quiz.get("options", [])
+            answer_idx = quiz.get("answer", 0)
+            if isinstance(answer_idx, str):
+                answer_idx = int(answer_idx)
+            if answer_idx < 0 or answer_idx >= len(options):
+                continue
+
+            correct_text = options[answer_idx]
+            random.shuffle(options)
+            new_idx = options.index(correct_text)
+            quiz["answer"] = new_idx
+            quiz["options"] = options
 
     def process_single_article(self, article_id: str):
         """단일 기사 처리 로직"""

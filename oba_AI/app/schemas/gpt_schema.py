@@ -1,7 +1,7 @@
 # oba_AI/app/schemas/gpt_schema.py
 
 from pydantic import BaseModel
-from typing import List
+from typing import List, Union
 
 class Keyword(BaseModel):
     keyword: str
@@ -10,7 +10,7 @@ class Keyword(BaseModel):
 class Quiz(BaseModel):
     question: str
     options: List[str]
-    answer: str
+    answer: Union[int, str]
     explanation: str
 
 class GptResponse(BaseModel):
