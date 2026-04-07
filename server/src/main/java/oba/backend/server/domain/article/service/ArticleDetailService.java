@@ -8,6 +8,8 @@ import oba.backend.server.domain.article.entity.SelectedArticle;
 import oba.backend.server.domain.article.repository.GptMongoRepository;
 import oba.backend.server.domain.quiz.entity.IncorrectQuiz;
 import oba.backend.server.domain.quiz.repository.IncorrectQuizRepository;
+import oba.backend.server.global.exception.BusinessException;
+import oba.backend.server.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -25,24 +27,21 @@ public class ArticleDetailService {
     private final AiService aiService;
 
     public ArticleDetailResponse getArticleDetail(String articleId, Long userId) {
-        // Mongo에서 기사 조회
         SelectedArticle doc = gptMongoRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 기사를 찾을 수 없습니다: " + articleId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        // gpt_result가 없으면 FastAPI에 GPT 처리 요청 후 다시 조회
         if (doc.getGptResult() == null) {
-            log.info("[ArticleDetailService] gpt_result 없음 → GPT 처리 요청 (articleId={})", articleId);
+            log.info("[ArticleDetailService] gpt_result 없음 -> GPT 처리 요청 (articleId={})", articleId);
             try {
                 aiService.processArticle(articleId);
                 doc = gptMongoRepository.findById(articleId)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 ID의 기사를 찾을 수 없습니다: " + articleId));
-            } catch (Exception e) {
-                log.error("[ArticleDetailService] GPT 처리 실패: {}", e.getMessage());
+                        .orElseThrow(() -> new BusinessException(ErrorCode.ARTICLE_NOT_FOUND));
+            } catch (BusinessException e) {
+                log.warn("[ArticleDetailService] GPT 처리 실패, 원본 기사 반환: {}", e.getMessage());
             }
         }
 
         List<Boolean> myResults = Collections.emptyList();
-
         if (userId != null) {
             Long numericId = doc.getArticleId();
             if (numericId != null) {
@@ -63,6 +62,7 @@ public class ArticleDetailService {
         return ArticleDetailResponse.builder()
                 .articleId(doc.getId())
                 .title(doc.getTitle())
+                .categoryName(doc.getCategoryName())
                 .content(doc.getContent())
                 .summaryBullets(doc.getSummaryBullets())
                 .keywords(keywordDtos)

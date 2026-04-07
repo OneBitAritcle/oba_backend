@@ -1,5 +1,6 @@
 package oba.backend.server.global.auth.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.domain.user.entity.User;
 import oba.backend.server.domain.user.service.UserService;
@@ -7,7 +8,8 @@ import oba.backend.server.global.auth.dto.LoginRequest;
 import oba.backend.server.global.auth.dto.TokenResponse;
 import oba.backend.server.global.auth.jwt.JwtProvider;
 import oba.backend.server.global.auth.oauth.OAuth2UserInfo;
-import oba.backend.server.global.common.Const;
+import oba.backend.server.global.exception.BusinessException;
+import oba.backend.server.global.exception.ErrorCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,38 +21,32 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
-    // 모바일 소셜 로그인
     @PostMapping("/mobile/login")
-    public ResponseEntity<TokenResponse> mobileLogin(@RequestBody LoginRequest request) {
-        // OAuth2UserInfo 가방에 담아서 서비스에 전달
+    public ResponseEntity<TokenResponse> mobileLogin(@Valid @RequestBody LoginRequest request) {
         OAuth2UserInfo userInfo = OAuth2UserInfo.builder()
                 .id(request.getIdToken())
                 .email(request.getIdToken() + "@mobile.user")
                 .name("모바일유저")
-                .provider("MOBILE") // AuthProvider.MOBILE로 매핑
+                .provider("MOBILE")
                 .build();
 
         User user = userService.registerOrUpdateUser(userInfo);
-
         return ResponseEntity.ok(jwtProvider.generateTokens(user.getId(), user.getIdentifier()));
     }
 
-    // 토큰 재발급
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissue(@RequestHeader("Authorization") String refreshHeader) {
-        if (refreshHeader == null || !refreshHeader.startsWith(Const.BEARER_PREFIX)) {
-            return ResponseEntity.badRequest().build();
+        if (refreshHeader == null || !refreshHeader.startsWith("Bearer ") || refreshHeader.length() <= 7) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
         }
 
-        String token = refreshHeader.substring(Const.BEARER_PREFIX.length());
-
+        String token = refreshHeader.substring(7).trim();
         if (!jwtProvider.validateToken(token)) {
-            return ResponseEntity.status(401).build();
+            throw new BusinessException(ErrorCode.TOKEN_EXPIRED);
         }
 
         Long userId = jwtProvider.getUserId(token);
         String identifier = jwtProvider.getIdentifier(token);
-
         return ResponseEntity.ok(jwtProvider.generateTokens(userId, identifier));
     }
 }

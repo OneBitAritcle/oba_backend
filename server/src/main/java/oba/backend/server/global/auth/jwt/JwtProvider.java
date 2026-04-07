@@ -3,20 +3,29 @@ package oba.backend.server.global.auth.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import oba.backend.server.global.auth.dto.TokenResponse;
+import oba.backend.server.global.exception.BusinessException;
+import oba.backend.server.global.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
 import javax.crypto.SecretKey;
+import java.util.Collections;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtProvider {
 
     private final SecretKey key;
-    private final long accessTokenValidity;   // ms
-    private final long refreshTokenValidity;  // ms
+    private final long accessTokenValidity;
+    private final long refreshTokenValidity;
 
     public JwtProvider(
             @Value("${jwt.secret}") String secret,
@@ -30,14 +39,11 @@ public class JwtProvider {
 
     private String createToken(Long userId, String identifier, long validityMs) {
         long now = System.currentTimeMillis();
-        Date issuedAt = new Date(now);
-        Date expiry = new Date(now + validityMs);
-
         return Jwts.builder()
                 .claim("userId", userId)
                 .setSubject(identifier)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiry)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + validityMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -61,7 +67,11 @@ public class JwtProvider {
         try {
             parseClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            log.debug("만료된 JWT 토큰");
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
+            log.debug("유효하지 않은 JWT 토큰");
             return false;
         }
     }
@@ -78,7 +88,12 @@ public class JwtProvider {
     }
 
     public Long getUserId(String token) {
-        return getClaims(token).get("userId", Long.class);
+        Claims claims = getClaims(token);
+        Long userId = claims.get("userId", Long.class);
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN, "userId가 토큰에 없습니다.");
+        }
+        return userId;
     }
 
     public String getIdentifier(String token) {
@@ -87,20 +102,29 @@ public class JwtProvider {
 
     public String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
-        if (bearer == null || !bearer.startsWith("Bearer ")) return null;
-        return bearer.substring(7);
+        if (bearer == null || !bearer.startsWith("Bearer ") || bearer.length() <= 7) {
+            return null;
+        }
+        return bearer.substring(7).trim();
     }
 
-    public org.springframework.security.core.Authentication getAuthentication(String identifier) {
-        org.springframework.security.core.userdetails.UserDetails user =
-                org.springframework.security.core.userdetails.User.builder()
-                        .username(identifier)
-                        .password("") // not used in JWT auth
-                        .authorities("USER")
-                        .build();
+    public Authentication getAuthentication(String identifier) {
+        UserDetails user = User.builder()
+                .username(identifier)
+                .password("")
+                .authorities("ROLE_USER")
+                .build();
+        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+    }
 
-        return new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user, "", user.getAuthorities()
-        );
+    public Long extractUserIdFromHeader(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ") || authorizationHeader.length() <= 7) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+        String token = authorizationHeader.substring(7).trim();
+        if (!validateToken(token)) {
+            throw new BusinessException(ErrorCode.TOKEN_EXPIRED);
+        }
+        return getUserId(token);
     }
 }
