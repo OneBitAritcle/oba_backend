@@ -1,0 +1,33 @@
+# Node modules (정말 절대 넣으면 안 됨)
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Expo local files
+.expo
+.expo-shared
+.expo/web-build
+
+# Metro bundler cache
+.cache
+dist
+web-build
+
+# Git files
+.git
+.gitignore
+
+# Logs
+*.log
+logs
+
+# OS/IDE files
+.DS_Store
+.vscode
+.idea
+
+# Environment files
+.env
+.env.local
+.env.*.local

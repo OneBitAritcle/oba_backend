@@ -1,81 +1,32 @@
-# Global Ignore
-
-HELP.md
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-# STS / Eclipse
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings/
-.springBeans/
-.sts4-cache/
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-# IntelliJ IDEA
-.idea/
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-# VS Code
-.vscode/
-
-# NetBeans
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-# Gradle
-gradle-app.setting
-/gradle.properties
-
-# Logs & Temp
-logs/
-*.log
-*.tmp
-*.swp
-
-# OS-specific
-.DS_Store
-Thumbs.db
-
-# Docker
-/docker-data/
-/docker-volume/
-/docker/volumes/
-
-# Build artifacts (server module)
-/server/build/
-/server/.gradle/
-/server/.idea/
-
-# Security: Sensitive Config Files
-
-# 루트 .env
+# Local configuration files
+application-local.properties
 .env
-.env.*
 
-# server 내부 src/main/resources/.env
-server/src/main/resources/.env
+# Build artifacts
+**/build/
+**/.gradle/
+**/.expo/
+**/dist/
 
-# application-local*, application-prod* (민감정보)
-**/application-local.yml
-**/application-local.properties
-**/application-prod.yml
-**/application-prod.properties
+# Dependencies
+**/node_modules/
+**/venv/
 
-# Unique Project Settings
-*.pid
+# Cache
+**/__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+
+# Credentials
+oba-key.pem
+secret/
+
+.git_bak
