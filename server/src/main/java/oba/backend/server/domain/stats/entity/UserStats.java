@@ -38,6 +38,9 @@ public class UserStats {
     @Column(name = "last_learned_at")
     private LocalDate lastLearnedAt;
 
+    @Column(name = "last_perfect_at")
+    private LocalDate lastPerfectAt;
+
     public void updateStreak() {
         LocalDate today = LocalDate.now();
         if (lastLearnedAt != null && lastLearnedAt.equals(today)) return;
@@ -52,5 +55,13 @@ public class UserStats {
             this.maxStreak = this.currentStreak;
         }
         this.lastLearnedAt = today;
+    }
+
+    public void checkAndUpdatePerfectDay(int todaySolvedCount) {
+        if (todaySolvedCount < 5) return;
+        LocalDate today = LocalDate.now();
+        if (lastPerfectAt != null && lastPerfectAt.equals(today)) return;
+        this.totalPerfectDays++;
+        this.lastPerfectAt = today;
     }
 }

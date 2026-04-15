@@ -18,16 +18,10 @@ repositories {
 }
 
 dependencies {
-    /* -------------------- Google OAuth / ID Token -------------------- */
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'com.google.api-client:google-api-client:2.2.0'
-    implementation 'com.google.http-client:google-http-client-gson:1.43.3'
-
     /* -------------------- Spring Core -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     /* -------------------- Cache -------------------- */
     implementation 'org.springframework.boot:spring-boot-starter-cache'

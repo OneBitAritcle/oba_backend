@@ -19,6 +19,8 @@ import oba.backend.server.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -71,6 +73,11 @@ public class QuizResultService {
 
         // 카테고리별 통계 업데이트
         updateCategoryStats(userId, article, request.getResults());
+
+        // 퍼펙트 데이 체크 (오늘 기사 5개 이상 풀었는지)
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        int todaySolved = articleLogRepository.findByUserIdAndInitialAtGreaterThanEqual(userId, todayStart).size();
+        user.getUserStats().checkAndUpdatePerfectDay(todaySolved);
     }
 
     private void updateCategoryStats(Long userId, SelectedArticle article, List<Boolean> results) {

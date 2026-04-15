@@ -82,26 +82,37 @@ public class SelectedArticle {
     public static class QuizItem {
         private String question;
         private List<String> options;
-        private String answer;
+        private Object answer;
         private String explanation;
 
         public int getAnswerIndex() {
             try {
                 if (answer == null) return -1;
-                // 1. 텍스트 매칭 우선 (옵션 텍스트와 answer 비교)
-                String cleanAnswer = answer.trim();
-                for (int i = 0; i < options.size(); i++) {
-                    String option = options.get(i).trim();
-                    if (option.equals(cleanAnswer) || option.contains(cleanAnswer) || cleanAnswer.contains(option)) {
-                        return i;
-                    }
-                }
-                // 2. 텍스트 매칭 실패 시 숫자 파싱 (예: "1)", "2)" 형식)
-                String numericPart = answer.replaceAll("[^0-9]", "");
-                if (!numericPart.isEmpty() && numericPart.length() <= 2) {
-                    int idx = Integer.parseInt(numericPart) - 1;
+
+                // 1. answer가 숫자 타입이면 바로 인덱스로 사용
+                if (answer instanceof Number) {
+                    int idx = ((Number) answer).intValue();
                     if (idx >= 0 && idx < options.size()) {
                         return idx;
+                    }
+                    return -1;
+                }
+
+                String cleanAnswer = answer.toString().trim();
+
+                // 2. 숫자 문자열 파싱 (0~3 인덱스)
+                String numericPart = cleanAnswer.replaceAll("[^0-9]", "");
+                if (!numericPart.isEmpty() && numericPart.length() <= 2) {
+                    int num = Integer.parseInt(numericPart);
+                    if (num >= 0 && num <= 3 && num < options.size()) {
+                        return num;
+                    }
+                }
+
+                // 3. 정확한 텍스트 매칭
+                for (int i = 0; i < options.size(); i++) {
+                    if (options.get(i).trim().equals(cleanAnswer)) {
+                        return i;
                     }
                 }
             } catch (Exception e) {

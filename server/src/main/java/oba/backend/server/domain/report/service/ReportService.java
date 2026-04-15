@@ -107,18 +107,17 @@ public class ReportService {
     }
 
     public ReportProgressResponse getProgress(Long userId) {
-        // 사용자가 푼 기사 수 (ArticleLog 기준)
-        List<ArticleLog> logs = articleLogRepository.findByUserId(userId);
-        int solvedArticles = logs.size();
+        // 오늘 푼 기사 수 (ArticleLog 기준, 오늘 날짜만)
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        List<ArticleLog> todayLogs = articleLogRepository.findByUserIdAndInitialAtGreaterThanEqual(userId, todayStart);
+        int solvedArticles = todayLogs.size();
 
-        // DB 전체 기사 수 (MongoDB)
-        long totalArticles = gptMongoRepository.count();
-
-        int percentage = totalArticles > 0 ? (int) Math.round((double) solvedArticles / totalArticles * 100) : 0;
+        int todayTotal = 5;
+        int percentage = (int) Math.round((double) solvedArticles / todayTotal * 100);
         return ReportProgressResponse.builder()
                 .solvedCount(solvedArticles)
-                .totalCount((int) totalArticles)
-                .progressPercentage(percentage)
+                .totalCount(todayTotal)
+                .progressPercentage(Math.min(percentage, 100))
                 .build();
     }
 

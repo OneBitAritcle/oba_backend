@@ -1,8 +1,6 @@
 package oba.backend.server.global.config;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.global.auth.oauth.CustomOAuth2UserService;
-import oba.backend.server.global.auth.oauth.OAuth2LoginSuccessHandler;
 import oba.backend.server.global.auth.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
@@ -27,11 +27,14 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Value("${cors.allowed-origins}")
     private List<String> allowedOrigins;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,9 +57,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
 
                         .requestMatchers(
-                                "/oauth2/**",
-                                "/login/**",
-                                "/auth/**",
+                                "/auth/signup",
+                                "/auth/login",
+                                "/auth/reissue",
+                                "/auth/check-email",
+                                "/auth/reset-password",
                                 "/error",
                                 "/favicon.ico"
                         ).permitAll()
@@ -65,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/report/**").authenticated()
                         .requestMatchers("/api/feedback/**").authenticated()
                         .requestMatchers("/api/my/**").authenticated()
+                        .requestMatchers("/auth/password").authenticated()
 
                         .anyRequest().authenticated()
                 )
@@ -79,16 +85,6 @@ public class SecurityConfig {
                             response.setStatus(403);
                             response.setContentType("application/json;charset=UTF-8");
                             response.getWriter().write("{\"status\":403,\"error\":\"Forbidden\",\"message\":\"접근 권한이 없습니다.\"}");
-                        })
-                )
-
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
-                        .successHandler(oAuth2LoginSuccessHandler)
-                        .failureHandler((request, response, exception) -> {
-                            response.setStatus(401);
-                            response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write("{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"소셜 로그인에 실패했습니다.\"}");
                         })
                 )
 
