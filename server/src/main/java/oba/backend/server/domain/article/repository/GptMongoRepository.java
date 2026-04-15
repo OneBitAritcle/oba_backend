@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface GptMongoRepository extends MongoRepository<SelectedArticle, String> {
     List<SelectedArticle> findByOrderByServingDateDesc(Pageable pageable);
 
+    List<SelectedArticle> findByServingDateOrderByPublishTimeAsc(String servingDate, Pageable pageable);
+
     // 숫자 ID로 기사 찾기 (SQL <-> Mongo 매핑용)
     Optional<SelectedArticle> findByArticleId(Long articleId);
 }

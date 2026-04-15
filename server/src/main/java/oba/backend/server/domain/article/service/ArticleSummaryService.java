@@ -6,6 +6,8 @@ import oba.backend.server.domain.article.entity.SelectedArticle;
 import oba.backend.server.domain.article.repository.GptMongoRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,9 @@ public class ArticleSummaryService {
     private final GptMongoRepository gptMongoRepository;
 
     public List<ArticleSummaryResponse> getLatestArticles(int limit) {
-        List<SelectedArticle> docs = gptMongoRepository.findByOrderByServingDateDesc(PageRequest.of(0, limit));
+        String today = LocalDate.now().toString();
+        List<SelectedArticle> docs = gptMongoRepository
+                .findByServingDateOrderByPublishTimeAsc(today, PageRequest.of(0, limit));
 
         return docs.stream()
                 .map(doc -> ArticleSummaryResponse.builder()
